@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园接驳车时刻表</title>
+    <style>
+        /* 1. 颜色变量 (支持白天/夜间) */
+        :root {
+            --c-primary: #005a9c;
+            --c-primary-dark: #004a80;
+            --c-primary-light: #e6f0f7;
+            --c-bg: #f7f9fa;
+            --c-card-bg: #ffffff;
+            --c-text-primary: #333333;
+            --c-text-secondary: #555555;
+            --c-border: #e4e7eb;
+            --c-shadow: rgba(0, 0, 0, 0.08);
+            --c-accent-red: #d9534f;
+            --c-accent-green: #5cb85c;
+            --c-accent-orange: #f0ad4e;
+            --c-note-bg: #e9e9e9;
+            --c-note-text: #333;
+        }
+
+        /* 1b. 夜间模式变量 */
+        body.dark-mode {
+            --c-bg: #121212;
+            --c-card-bg: #1e1e1e;
+            --c-text-primary: #e0e0e0;
+            --c-text-secondary: #b0b0b0;
+            --c-border: #3a3a3a;
+            --c-shadow: rgba(0, 0, 0, 0.2);
+            --c-primary-light: #2a3b4c;
+            --c-note-bg: #4a4a4a;
+            --c-note-text: #e0e0e0;
+        }
+
+        /* 2. 基础重置和设置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+            background-color: var(--c-bg);
+            color: var(--c-text-primary);
+            margin: 0;
+            padding: 20px 10px; /* 电脑版上下留白 */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* 3. 主应用容器 */
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--c-card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px var(--c-shadow);
+            overflow: hidden;
+            border: 1px solid var(--c-border);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        /* 4. 头部 */
+        header {
+            background: linear-gradient(135deg, var(--c-primary), var(--c-primary-dark));
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        #clock {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        /* 5. 控制区域 */
+        .controls {
+            padding: 20px 25px;
+            background-color: var(--c-card-bg);
+            border-bottom: 1px solid var(--c-border);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+        .control-group:last-child { margin-bottom: 0; }
+
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--c-text-secondary);
+            font-size: 1.1em;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            border: 1px solid var(--c-border);
+            background-color: var(--c-bg);
+            color: var(--c-text-primary);
+            appearance: none;
+            /* 适配夜间模式的SVG箭头 */
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23005a9c%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        body.dark-mode select {
+             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23b0b0b0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        }
+
+        /* 6. 日期切换开关 */
+        .toggle-switch {
+            display: flex;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--c-primary);
+        }
+
+        .toggle-switch input { display: none; }
+
+        .toggle-switch label {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            margin: 0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--c-primary);
+            background-color: var(--c-card-bg);
+            transition: all 0.2s ease-in-out;
+        }
+        body.dark-mode .toggle-switch label {
+             color: var(--c-text-primary);
+        }
+        
+        .toggle-switch label:hover { background-color: var(--c-primary-light); }
+
+        .toggle-switch input:checked + label {
+            background-color: var(--c-primary);
+            color: white;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        body.dark-mode .toggle-switch input:checked + label {
+             color: white;
+        }
+
+        /* 7. 结果区域 */
+        #results {
+            padding: 10px 25px 25px 25px;
+        }
+
+        #results h2 {
+            margin: 10px 0 20px 0;
+            color: var(--c-text-secondary);
+            border-bottom: 2px solid var(--c-border);
+            padding-bottom: 10px;
+            font-weight: 600;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        /* 8. 班车卡片 (v3 紧凑布局) */
+        .bus-card {
+            background-color: var(--c-card-bg);
+            border: 1px solid var(--c-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px var(--c-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .bus-card.no-bus {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.1em;
+            background-color: var(--c-primary-light);
+            border-color: var(--c-primary);
+            color: var(--c-primary-dark);
+        }
+        body.dark-mode .bus-card.no-bus {
+            color: var(--c-text-primary);
+        }
+
+        .bus-time {
+            float: right;
+            font-size: 1.6em;
+            font-weight: 700;
+            color: var(--c-primary);
+        }
+
+        .wait-time {
+            font-size: 1.2em;
+            margin: 5px 0 15px 0 !important;
+            font-weight: 500;
+        }
+
+        .wait-time strong {
+            color: var(--c-accent-red);
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .bus-details {
+            clear: both;
+            padding-top: 15px;
+            border-top: 1px dashed var(--c-border);
+            color: var(--c-text-secondary);
+        }
+        
+        .bus-details p {
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        .notes-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px; /* 标签间距 */
+        }
+        
+        /* 8b. 突出的备注徽章 (v3) */
+        .bus-details .note {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+            background-color: var(--c-note-bg);
+            color: var(--c-note-text);
+        }
+        
+        /* 特殊备注高亮 */
+        .bus-details .note.highlight { /* 途径纪忠楼 */
+             background-color: var(--c-accent-orange);
+             color: white;
+        }
+        .bus-details .note.important { /* 大巴 */
+             background-color: var(--c-accent-green);
+             color: white;
+        }
+        
+        .note-placeholder {
+            font-style: italic;
+            color: #aaa;
+            font-size: 0.9em;
+        }
+
+        /* 9. 底部 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #aaa;
+            background-color: var(--c-bg);
+            border-top: 1px solid var(--c-border);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        
+        /* 10. 手机响应式适配 */
+        @media (max-width: 480px) {
+            body {
+                padding: 0; /* 手机上占满全屏 */
+            }
+
+            #app-container {
+                border-radius: 0;
+                border: none;
+                min-height: 100vh; /* 至少一屏高 */
+                box-shadow: none;
+            }
+            
+            header {
+                padding: 20px 15px;
+            }
+            header h1 { font-size: 1.4em; }
+            #clock { font-size: 1em; }
+            
+            .controls, #results { padding: 20px; }
+            
+            #results h2 {
+                font-size: 1.2em;
+                margin-top: 5px;
+                margin-bottom: 15px;
+            }
+
+            select, .toggle-switch label {
+                padding: 12px;
+                font-size: 1em;
+            }
+            
+            .bus-card { padding: 15px; border-radius: 10px; }
+            .bus-time { font-size: 1.4em; }
+            .wait-time { font-size: 1.1em; }
+            .wait-time strong { font-size: 1.4em; }
+            
+            .bus-details p { font-size: 1em; }
+            .bus-details .note { font-size: 0.85em; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <header>
+            <h1>校园接驳车实时查询</h1>
+            <div id="clock">--:--:--</div>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="day-type">选择日期类型：</label>
+                <div class="toggle-switch">
+                    <input type="radio" id="workday" name="day-type" value="workday" checked>
+                    <label for="workday">工作日</label>
+                    <input type="radio" id="holiday" name="day-type" value="holiday">
+                    <label for="holiday">节假日</label>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label for="location-select">选择你的上车地点：</label>
+                <select id="location-select">
+                    </select>
+            </div>
+        </div>
+
+        <div id="results">
+            <h2>接下来的班车：</h2>
+            <div id="bus-card-1" class="bus-card no-bus">
+                请先选择上车地点
+            </div>
+            <div id="bus-card-2" class="bus-card" style="display:none;">
+                </div>
+        </div>
+        
+        <footer>
+            数据基于2025年10月20日起执行的时刻表
+        </footer>
+    </div>
+
+    <script>
+        // 1. 数据库 (与 v2 相同)
+        const schedules = {
+            workday: {
+                "兰园": [
+                    { time: "8:30", destination: "无线谷", notes: ["途径北门转盘", "大巴"] },
+                    { time: "9:00", destination: "无线谷", notes: ["途径北门转盘", "大巴"] },
+                    { time: "13:30", destination: "无线谷", notes: ["途径北门转盘", "大巴"] }
+                ],
+                "橘园": [
+                    { time: "8:00", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "8:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "8:40", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "9:00", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "9:10", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "9:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "9:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "9:40", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "9:55", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "11:00", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "11:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "11:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "11:40", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "11:50", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "12:00", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "12:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "12:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "13:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "13:40", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "13:50", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "14:00", destination: "无线谷", notes: ["途径北门转盘", "2班车"] }, 
+                    { time: "14:00", destination: "无线谷", notes: ["途径北门转盘", "2班车"] }, 
+                    { time: "15:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "15:40", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "16:00", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "16:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "16:50", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "17:10", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "17:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "17:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "17:50", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "18:00", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "18:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "20:50", destination: "无线谷", notes: ["途径北门转盘"] }
+                ],
+                "兰台": [
+                    { time: "7:20", destination: "北门转盘", notes: ["途径纪忠楼", "2班车"] }, 
+                    { time: "7:20", destination: "北门转盘", notes: ["途径纪忠楼", "2班车"] }, 
+                    { time: "7:40", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "9:30", destination: "北门转盘", notes: ["循环发车"] },
+                    { time: "9:40", destination: "北门转盘", notes: ["循环发车"] },
+                    { time: "10:00", destination: "北门转盘", notes: [] },
+                    { time: "10:30", destination: "北门转盘", notes: [] },
+                    { time: "11:00", destination: "北门转盘", notes: [] },
+                    { time: "11:20", destination: "北门转盘", notes: [] },
+                    { time: "11:40", destination: "北门转盘", notes: [] },
+                    { time: "11:55", destination: "北门转盘", notes: [] },
+                    { time: "12:10", destination: "北门转盘", notes: [] },
+                    { time: "12:20", destination: "北门转盘", notes: [] },
+                    { time: "12:40", destination: "北门转盘", notes: [] },
+                    { time: "12:50", destination: "北门转盘", notes: [] },
+                    { time: "13:05", destination: "北门转盘", notes: [] },
+                    { time: "13:20", destination: "北门转盘", notes: [] },
+                    { time: "14:00", destination: "北门转盘", notes: [] },
+                    { time: "14:20", destination: "北门转盘", notes: [] },
+                    { time: "14:40", destination: "北门转盘", notes: [] },
+                    { time: "15:00", destination: "北门转盘", notes: [] },
+                    { time: "15:20", destination: "北门转盘", notes: [] },
+                    { time: "15:40", destination: "北门转盘", notes: [] },
+                    { time: "16:00", destination: "北门转盘", notes: [] },
+                    { time: "16:30", destination: "北门转盘", notes: [] },
+                    { time: "16:50", destination: "北门转盘", notes: [] },
+                    { time: "17:10", destination: "北门转盘", notes: [] },
+                    { time: "17:20", destination: "北门转盘", notes: [] },
+                    { time: "17:40", destination: "北门转盘", notes: [] },
+                    { time: "17:50", destination: "北门转盘", notes: [] },
+                    { time: "18:00", destination: "北门转盘", notes: [] },
+                    { time: "18:20", destination: "北门转盘", notes: [] },
+                    { time: "18:30", destination: "北门转盘", notes: [] },
+                    { time: "18:40", destination: "北门转盘", notes: [] },
+                    { time: "18:50", destination: "北门转盘", notes: [] },
+                    { time: "19:10", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "19:30", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "19:45", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "20:05", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "20:25", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "20:45", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "21:05", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "21:25", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "21:45", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "22:05", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "22:15", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "22:25", destination: "北门转盘", notes: ["途径纪忠楼"] }
+                ],
+                "无线谷": [ 
+                    { time: "8:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "8:30", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "8:50", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "9:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "9:20", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "9:30", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "9:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "9:50", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "10:05", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "11:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "11:30", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "11:40", destination: "北门转盘", notes: ["终点兰园", "2班车"] }, 
+                    { time: "11:40", destination: "北门转盘", notes: ["终点兰园", "2班车"] }, 
+                    { time: "11:50", destination: "北门转盘", notes: ["终点兰园"] }, 
+                    { time: "12:00", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "12:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "12:30", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "12:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "13:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "13:50", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "14:00", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "14:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "15:30", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "15:50", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "16:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "16:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "17:00", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "17:20", destination: "北门转盘", notes: ["终点兰园", "2班车"] }, 
+                    { time: "17:20", destination: "北门转盘", notes: ["终点兰园", "2班车"] }, 
+                    { time: "17:30", destination: "北门转盘", notes: ["终点兰园"] }, 
+                    { time: "17:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "18:00", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "18:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "18:30", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "21:00", destination: "北门转盘", notes: ["终点兰园"] }, 
+                    { time: "21:30", destination: "北门转盘", notes: ["终点兰园"] }, 
+                    { time: "21:30", destination: "北门转盘", notes: ["摆渡"] }, 
+                    { time: "22:10", destination: "北门转盘", notes: ["终点兰园"] } 
+                ],
+                "北门转盘": [
+                    { time: "10:10", destination: "兰台", notes: [] },
+                    { time: "10:40", destination: "兰台", notes: [] },
+                    { time: "11:10", destination: "兰台", notes: [] },
+                    { time: "11:30", destination: "兰台", notes: [] },
+                    { time: "11:50", destination: "兰台", notes: [] },
+                    { time: "12:00", destination: "兰台", notes: [] },
+                    { time: "12:20", destination: "兰台", notes: [] },
+                    { time: "12:30", destination: "兰台", notes: [] },
+                    { time: "12:40", destination: "兰台", notes: [] },
+                    { time: "13:00", destination: "兰台", notes: [] },
+                    { time: "13:10", destination: "兰台", notes: [] },
+                    { time: "13:30", destination: "兰台", notes: [] },
+                    { time: "14:10", destination: "兰台", notes: [] },
+                    { time: "14:30", destination: "兰台", notes: [] },
+                    { time: "14:50", destination: "兰台", notes: [] },
+                    { time: "15:10", destination: "兰台", notes: [] },
+                    { time: "15:30", destination: "兰台", notes: [] },
+                    { time: "15:50", destination: "兰台", notes: [] },
+                    { time: "16:10", destination: "兰台", notes: [] },
+                    { time: "16:40", destination: "兰台", notes: [] },
+                    { time: "17:00", destination: "兰台", notes: [] },
+                    { time: "17:10", destination: "兰台", notes: [] },
+                    { time: "17:30", destination: "兰台", notes: [] },
+                    { time: "17:40", destination: "兰台", notes: [] },
+                    { time: "17:50", destination: "兰台", notes: [] },
+                    { time: "18:00", destination: "兰台", notes: [] },
+                    { time: "18:10", destination: "兰台", notes: [] },
+                    { time: "18:40", destination: "兰台", notes: [] },
+                    { time: "18:50", destination: "兰台", notes: [] },
+                    { time: "19:00", destination: "兰台", notes: [] },
+                    { time: "19:20", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "19:40", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "20:00", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "20:20", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "20:40", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "21:00", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "21:20", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "21:40", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "22:00", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "22:10", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "22:20", destination: "兰台", notes: ["来自纪忠楼"] },
+                    { time: "22:30", destination: "兰台", notes: ["来自纪忠楼"] }
+                ],
+                "纪忠楼": [
+                    { time: "7:30", destination: "兰台", notes: [] },
+                    { time: "9:50", destination: "兰台", notes: ["循环发车"] },
+                    { time: "10:50", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "11:40", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "12:30", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "15:00", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "15:50", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "16:50", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "17:40", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "18:30", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "19:55", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "20:50", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] },
+                    { time: "21:40", destination: "兰台", notes: ["途径文学院", "途径北门转盘"] }
+                ]
+            },
+            holiday: {
+                "兰园": [
+                    { time: "8:30", destination: "无线谷", notes: ["途径北门转盘", "大巴"] },
+                    { time: "9:00", destination: "无线谷", notes: ["途径北门转盘", "大巴"] },
+                    { time: "13:30", destination: "无线谷", notes: ["途径北门转盘", "大巴"] }
+                ],
+                "橘园": [
+                    { time: "8:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "8:40", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "8:50", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "9:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "9:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "11:00", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "11:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "11:40", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "12:00", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "13:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "13:40", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "14:00", destination: "无线谷", notes: ["途径北门转盘", "2班车"] }, 
+                    { time: "14:00", destination: "无线谷", notes: ["途径北门转盘", "2班车"] }, 
+                    { time: "15:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "16:00", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "16:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "16:50", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "17:20", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "17:40", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "18:50", destination: "无线谷", notes: ["途径北门转盘"] },
+                    { time: "20:30", destination: "无线谷", notes: ["途径北门转盘"] },
+                ],
+                "兰台": [
+                    { time: "7:20", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "7:40", destination: "北门转盘", notes: ["途径纪忠楼"] },
+                    { time: "8:00", destination: "北门转盘", notes: [] },
+                    { time: "8:20", destination: "北门转盘", notes: [] },
+                    { time: "8:40", destination: "北门转盘", notes: [] },
+                    { time: "9:00", destination: "北门转盘", notes: [] },
+                    { time: "9:20", destination: "北门转盘", notes: [] },
+                    { time: "9:40", destination: "北门转盘", notes: [] },
+                    { time: "10:00", destination: "北门转盘", notes: [] },
+                    { time: "10:30", destination: "北门转盘", notes: [] },
+                    { time: "10:50", destination: "北门转盘", notes: [] },
+                    { time: "11:10", destination: "北门转盘", notes: [] },
+                    { time: "11:30", destination: "北门转盘", notes: [] },
+                    { time: "11:50", destination: "北门转盘", notes: [] },
+                    { time: "12:10", destination: "北门转盘", notes: [] },
+                    { time: "12:30", destination: "北门转盘", notes: [] },
+                    { time: "12:50", destination: "北门转盘", notes: [] },
+                    { time: "13:00", destination: "北门转盘", notes: [] },
+                    { time: "13:20", destination: "北门转盘", notes: [] },
+                    { time: "13:40", destination: "北门转盘", notes: [] },
+                    { time: "14:00", destination: "北门转盘", notes: [] },
+                    { time: "14:20", destination: "北门转盘", notes: [] },
+                    { time: "14:40", destination: "北门转盘", notes: [] },
+                    { time: "15:00", destination: "北门转盘", notes: [] },
+                    { time: "15:20", destination: "北门转盘", notes: [] },
+                    { time: "15:40", destination: "北门转盘", notes: [] },
+                    { time: "16:00", destination: "北门转盘", notes: [] },
+                    { time: "16:20", destination: "北门转盘", notes: [] },
+                    { time: "16:40", destination: "北门转盘", notes: [] },
+                    { time: "17:00", destination: "北门转盘", notes: [] },
+                    { time: "17:20", destination: "北门转盘", notes: [] },
+                    { time: "17:40", destination: "北门转盘", notes: [] },
+                    { time: "18:00", destination: "北门转盘", notes: [] },
+                    { time: "18:20", destination: "北门转盘", notes: [] },
+                    { time: "18:40", destination: "北门转盘", notes: [] },
+                    { time: "19:00", destination: "北门转盘", notes: [] },
+                    { time: "19:20", destination: "北门转盘", notes: [] },
+                    { time: "19:35", destination: "北门转盘", notes: [] },
+                    { time: "19:55", destination: "北门转盘", notes: [] },
+                    { time: "20:15", destination: "北门转盘", notes: [] },
+                    { time: "20:35", destination: "北门转盘", notes: [] },
+                    { time: "20:55", destination: "北门转盘", notes: [] },
+                    { time: "21:15", destination: "北门转盘", notes: [] },
+                    { time: "21:35", destination: "北门转盘", notes: [] },
+                    { time: "21:55", destination: "北门转盘", notes: [] },
+                    { time: "22:15", destination: "北门转盘", notes: [] },
+                    { time: "22:25", destination: "北门转盘", notes: [] }
+                ],
+                "无线谷": [
+                    { time: "8:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "8:50", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "9:00", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "9:30", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "9:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "11:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "11:30", destination: "北门转盘", notes: ["终点兰园", "2班车"] }, 
+                    { time: "11:30", destination: "北门转盘", notes: ["终点兰园", "2班车"] }, 
+                    { time: "11:50", destination: "北门转盘", notes: ["终点兰园"] }, 
+                    { time: "12:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "13:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "13:50", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "14:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "15:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "16:10", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "16:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "17:00", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "17:20", destination: "北门转盘", notes: ["终点兰园", "2班车"] }, 
+                    { time: "17:20", destination: "北门转盘", notes: ["终点兰园", "2班车"] }, 
+                    { time: "17:50", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "19:00", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "20:40", destination: "北门转盘", notes: ["终点兰园"] },
+                    { time: "21:10", destination: "北门转盘", notes: ["终点兰园"] }, 
+                    { time: "21:30", destination: "北门转盘", notes: ["终点兰园"] }, 
+                    { time: "21:30", destination: "北门转盘", notes: ["摆渡"] }, 
+                    { time: "22:10", destination: "北门转盘", notes: ["终点兰园"] } 
+                ],
+                "北门转盘": [
+                    { time: "7:30", destination: "兰台", notes: [] },
+                    { time: "7:50", destination: "兰台", notes: [] },
+                    { time: "8:10", destination: "兰台", notes: [] },
+                    { time: "8:30", destination: "兰台", notes: [] },
+                    { time: "8:50", destination: "兰台", notes: [] },
+                    { time: "9:10", destination: "兰台", notes: [] },
+                    { time: "9:30", destination: "兰台", notes: [] },
+                    { time: "9:50", destination: "兰台", notes: [] },
+                    { time: "10:10", destination: "兰台", notes: [] },
+                    { time: "10:40", destination: "兰台", notes: [] },
+                    { time: "11:00", destination: "兰台", notes: [] },
+                    { time: "11:20", destination: "兰台", notes: [] },
+                    { time: "11:40", destination: "兰台", notes: [] },
+                    { time: "12:00", destination: "兰台", notes: [] },
+                    { time: "12:20", destination: "兰台", notes: [] },
+                    { time: "12:40", destination: "兰台", notes: [] },
+                    { time: "12:55", destination: "兰台", notes: [] },
+                    { time: "13:10", destination: "兰台", notes: [] },
+                    { time: "13:30", destination: "兰台", notes: [] },
+                    { time: "13:50", destination: "兰台", notes: [] },
+                    { time: "14:10", destination: "兰台", notes: [] },
+                    { time: "14:30", destination: "兰台", notes: [] },
+                    { time: "14:50", destination: "兰台", notes: [] },
+                    { time: "15:10", destination: "兰台", notes: [] },
+                    { time: "15:30", destination: "兰台", notes: [] },
+                    { time: "15:50", destination: "兰台", notes: [] },
+                    { time: "16:10", destination: "兰台", notes: [] },
+                    { time: "16:30", destination: "兰台", notes: [] },
+                    { time: "16:50", destination: "兰台", notes: [] },
+                    { time: "17:10", destination: "兰台", notes: [] },
+                    { time: "17:30", destination: "兰台", notes: [] },
+                    { time: "17:50", destination: "兰台", notes: [] },
+                    { time: "18:10", destination: "兰台", notes: [] },
+                    { time: "18:30", destination: "兰台", notes: [] },
+                    { time: "18:50", destination: "兰台", notes: [] },
+                    { time: "19:10", destination: "兰台", notes: [] },
+                    { time: "19:30", destination: "兰台", notes: [] },
+                    { time: "19:50", destination: "兰台", notes: [] },
+                    { time: "20:10", destination: "兰台", notes: [] },
+                    { time: "20:30", destination: "兰台", notes: [] },
+                    { time: "20:50", destination: "兰台", notes: [] },
+                    { time: "21:10", destination: "兰台", notes: [] },
+                    { time: "21:30", destination: "兰台", notes: [] },
+                    { time: "21:50", destination: "兰台", notes: [] },
+                    { time: "22:10", destination: "兰台", notes: [] },
+                    { time: "22:20", destination: "兰台", notes: [] },
+                    { time: "22:30", destination: "兰台", notes: [] }
+                ],
+                "纪忠楼": [
+                    // 节假日纪忠楼没有始发车
+                ]
+            }
+        };
+
+        // 2. 应用程序逻辑
+        document.addEventListener('DOMContentLoaded', () => {
+            const clockEl = document.getElementById('clock');
+            const dayTypeWorkdayEl = document.getElementById('workday');
+            const dayTypeHolidayEl = document.getElementById('holiday');
+            const locationSelectEl = document.getElementById('location-select');
+            const busCard1El = document.getElementById('bus-card-1');
+            const busCard2El = document.getElementById('bus-card-2');
+
+            let mainInterval;
+
+            // 初始化
+            function init() {
+                // 自动设置日期类型
+                const today = new Date().getDay(); // 0 = Sunday, 6 = Saturday
+                if (today === 0 || today === 6) {
+                    dayTypeHolidayEl.checked = true;
+                } else {
+                    dayTypeWorkdayEl.checked = true;
+                }
+
+                // 填充地点下拉框
+                populateLocations();
+
+                // 启动时钟
+                updateClock();
+                setInterval(updateClock, 1000);
+                
+                // (v3) 检查夜间模式
+                checkTimeForDarkMode();
+                setInterval(checkTimeForDarkMode, 60000); // 每分钟检查一次
+
+                // 添加事件监听
+                dayTypeWorkdayEl.addEventListener('change', onSettingsChange);
+                dayTypeHolidayEl.addEventListener('change', onSettingsChange);
+                locationSelectEl.addEventListener('change', onSettingsChange);
+
+                // 立即运行一次
+                onSettingsChange();
+                
+                // 设置定时器每10秒刷新一次班车时间
+                if(mainInterval) clearInterval(mainInterval);
+                mainInterval = setInterval(updateBusDisplay, 10000);
+            }
+            
+            // (v3) 自动夜间模式
+            function checkTimeForDarkMode() {
+                const hour = new Date().getHours();
+                // 晚上 19:00 (7 PM) 到早上 6:00 (5:59 AM) 启动夜间模式
+                if (hour >= 19 || hour < 6) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+
+            // 当设置（日期或地点）改变时
+            function onSettingsChange() {
+                populateLocations();
+                updateBusDisplay();
+            }
+
+            // 更新时钟显示
+            function updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('zh-CN', { hour12: false });
+                clockEl.textContent = timeString;
+            }
+
+            // 根据日期类型填充地点
+            function populateLocations() {
+                const currentDayType = getDayType();
+                const locations = Object.keys(schedules[currentDayType]);
+                const currentSelectedValue = locationSelectEl.value;
+                
+                locationSelectEl.innerHTML = ''; // 清空
+                
+                locations.forEach(location => {
+                    if(currentDayType === 'holiday' && location === '纪忠楼') {
+                        return;
+                    }
+                    const option = document.createElement('option');
+                    option.value = location;
+                    option.textContent = location;
+                    locationSelectEl.appendChild(option);
+                });
+
+                if (locations.includes(currentSelectedValue)) {
+                    locationSelectEl.value = currentSelectedValue;
+                }
+            }
+
+            // 获取当前选择的日期类型
+            function getDayType() {
+                return dayTypeWorkdayEl.checked ? 'workday' : 'holiday';
+            }
+
+            // 核心功能：更新班车显示
+            function updateBusDisplay() {
+                const dayType = getDayType();
+                const location = locationSelectEl.value;
+                
+                if (!location) {
+                    showNoBusMessage(busCard1El, "请选择一个上车地点");
+                    busCard2El.style.display = 'none';
+                    return;
+                }
+
+                const busList = schedules[dayType][location] || [];
+
+                if (busList.length === 0) {
+                    showNoBusMessage(busCard1El, `今日 ${location} 已无班车`);
+                    busCard2El.style.display = 'none';
+                    return;
+                }
+
+                const now = new Date();
+                const nowInMinutes = now.getHours() * 60 + now.getMinutes();
+
+                const upcomingBuses = busList
+                    .map(bus => {
+                        const [hours, minutes] = bus.time.split(':').map(Number);
+                        const busTimeInMinutes = hours * 60 + minutes;
+                        const waitTime = busTimeInMinutes - nowInMinutes;
+                        return { ...bus, waitTime, busTimeInMinutes };
+                    })
+                    .filter(bus => bus.waitTime >= 0) 
+                    .sort((a, b) => a.busTimeInMinutes - b.busTimeInMinutes); 
+
+                displayBus(busCard1El, upcomingBuses[0]);
+                displayBus(busCard2El, upcomingBuses[1]);
+            }
+
+            // (v3) 在卡片中显示班车信息 (紧凑布局)
+            function displayBus(element, bus) {
+                if (bus) {
+                    element.style.display = 'block';
+                    element.classList.remove('no-bus');
+                    
+                    let notesHtml = '';
+                    if (bus.notes && bus.notes.length > 0) {
+                        notesHtml = bus.notes.map(note => {
+                            // "途径纪忠楼" 用橙色, "大巴" 用绿色, "2班车" 等用默认
+                            const specialClass = (note.includes('纪忠楼')) ? 'highlight' 
+                                             : (note.includes('大巴')) ? 'important' 
+                                             : '';
+                            return `<span class="note ${specialClass}">${note}</span>`;
+                        }).join(' ');
+                    }
+
+                    // 注入 v1 风格的紧凑布局
+                    element.innerHTML = `
+                        <span class="bus-time">${bus.time} 发车</span>
+                        <p class="wait-time">将在 <strong>${bus.waitTime}</strong> 分钟后发车</p>
+                        <div class="bus-details">
+                            <p>开往: <strong>${bus.destination}</strong></p>
+                            <div class="notes-container">
+                                ${notesHtml || '<span class="note-placeholder">无特殊备注</span>'}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    showNoBusMessage(element, "已无更多班车");
+                    if (element.id === 'bus-card-1') {
+                        busCard2El.style.display = 'none';
+                    }
+                }
+            }
+            
+            function showNoBusMessage(element, message) {
+                 element.style.display = 'block';
+                 element.classList.add('no-bus');
+                 element.innerHTML = message;
+            }
+
+            // 启动!
+            init();
+        });
+    </script>
+</body>
+</html>
