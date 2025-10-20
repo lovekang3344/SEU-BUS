@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,7 +49,8 @@
             background-color: var(--c-bg);
             color: var(--c-text-primary);
             margin: 0;
-            padding: 20px 10px; /* 电脑版上下留白 */
+            padding: 20px 10px;
+            /* 电脑版上下留白 */
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -100,7 +102,10 @@
         .control-group {
             margin-bottom: 18px;
         }
-        .control-group:last-child { margin-bottom: 0; }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
 
         .control-group label {
             display: block;
@@ -127,8 +132,9 @@
             cursor: pointer;
             transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
+
         body.dark-mode select {
-             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23b0b0b0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23b0b0b0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
         }
 
         /* 6. 日期切换开关 */
@@ -139,7 +145,9 @@
             border: 1px solid var(--c-primary);
         }
 
-        .toggle-switch input { display: none; }
+        .toggle-switch input {
+            display: none;
+        }
 
         .toggle-switch label {
             flex: 1;
@@ -153,19 +161,23 @@
             background-color: var(--c-card-bg);
             transition: all 0.2s ease-in-out;
         }
-        body.dark-mode .toggle-switch label {
-             color: var(--c-text-primary);
-        }
-        
-        .toggle-switch label:hover { background-color: var(--c-primary-light); }
 
-        .toggle-switch input:checked + label {
+        body.dark-mode .toggle-switch label {
+            color: var(--c-text-primary);
+        }
+
+        .toggle-switch label:hover {
+            background-color: var(--c-primary-light);
+        }
+
+        .toggle-switch input:checked+label {
             background-color: var(--c-primary);
             color: white;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        body.dark-mode .toggle-switch input:checked + label {
-             color: white;
+
+        body.dark-mode .toggle-switch input:checked+label {
+            color: white;
         }
 
         /* 7. 结果区域 */
@@ -192,7 +204,7 @@
             box-shadow: 0 4px 12px var(--c-shadow);
             transition: all 0.3s ease;
         }
-        
+
         .bus-card.no-bus {
             text-align: center;
             padding: 30px;
@@ -201,6 +213,7 @@
             border-color: var(--c-primary);
             color: var(--c-primary-dark);
         }
+
         body.dark-mode .bus-card.no-bus {
             color: var(--c-text-primary);
         }
@@ -230,19 +243,20 @@
             border-top: 1px dashed var(--c-border);
             color: var(--c-text-secondary);
         }
-        
+
         .bus-details p {
             font-size: 1.1em;
             margin-bottom: 12px;
             font-weight: 500;
         }
-        
+
         .notes-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px; /* 标签间距 */
+            gap: 8px;
+            /* 标签间距 */
         }
-        
+
         /* 8b. 突出的备注徽章 (v3) */
         .bus-details .note {
             display: inline-block;
@@ -253,17 +267,20 @@
             background-color: var(--c-note-bg);
             color: var(--c-note-text);
         }
-        
+
         /* 特殊备注高亮 */
-        .bus-details .note.highlight { /* 途径纪忠楼 */
-             background-color: var(--c-accent-orange);
-             color: white;
+        .bus-details .note.highlight {
+            /* 途径纪忠楼 */
+            background-color: var(--c-accent-orange);
+            color: white;
         }
-        .bus-details .note.important { /* 大巴 */
-             background-color: var(--c-accent-green);
-             color: white;
+
+        .bus-details .note.important {
+            /* 大巴 */
+            background-color: var(--c-accent-green);
+            color: white;
         }
-        
+
         .note-placeholder {
             font-style: italic;
             color: #aaa;
@@ -280,50 +297,79 @@
             border-top: 1px solid var(--c-border);
             transition: background-color 0.3s, border-color 0.3s;
         }
-        
+
         /* 10. 手机响应式适配 */
         @media (max-width: 480px) {
             body {
-                padding: 0; /* 手机上占满全屏 */
+                padding: 0;
+                /* 手机上占满全屏 */
             }
 
             #app-container {
                 border-radius: 0;
                 border: none;
-                min-height: 100vh; /* 至少一屏高 */
+                min-height: 100vh;
+                /* 至少一屏高 */
                 box-shadow: none;
             }
-            
+
             header {
                 padding: 20px 15px;
             }
-            header h1 { font-size: 1.4em; }
-            #clock { font-size: 1em; }
-            
-            .controls, #results { padding: 20px; }
-            
+
+            header h1 {
+                font-size: 1.4em;
+            }
+
+            #clock {
+                font-size: 1em;
+            }
+
+            .controls,
+            #results {
+                padding: 20px;
+            }
+
             #results h2 {
                 font-size: 1.2em;
                 margin-top: 5px;
                 margin-bottom: 15px;
             }
 
-            select, .toggle-switch label {
+            select,
+            .toggle-switch label {
                 padding: 12px;
                 font-size: 1em;
             }
-            
-            .bus-card { padding: 15px; border-radius: 10px; }
-            .bus-time { font-size: 1.4em; }
-            .wait-time { font-size: 1.1em; }
-            .wait-time strong { font-size: 1.4em; }
-            
-            .bus-details p { font-size: 1em; }
-            .bus-details .note { font-size: 0.85em; }
-        }
 
+            .bus-card {
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            .bus-time {
+                font-size: 1.4em;
+            }
+
+            .wait-time {
+                font-size: 1.1em;
+            }
+
+            .wait-time strong {
+                font-size: 1.4em;
+            }
+
+            .bus-details p {
+                font-size: 1em;
+            }
+
+            .bus-details .note {
+                font-size: 0.85em;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <div id="app-container">
@@ -342,11 +388,11 @@
                     <label for="holiday">节假日</label>
                 </div>
             </div>
-            
+
             <div class="control-group">
                 <label for="location-select">选择你的上车地点：</label>
                 <select id="location-select">
-                    </select>
+                </select>
             </div>
         </div>
 
@@ -356,225 +402,187 @@
                 请先选择上车地点
             </div>
             <div id="bus-card-2" class="bus-card" style="display:none;">
-                </div>
+            </div>
         </div>
-        
+
         <footer>
             数据基于2025年10月20日起执行的时刻表
         </footer>
     </div>
 
     <script>
-        // 1. 数据库 - 所有数据来自外部文件 时间表.json
+        // 1. 数据库
         let schedules = {};
 
-        // 动态加载时刻表数据
+        // 2. 拉数据：返回 Promise，方便 await
+        // 在 loadScheduleData() 里把 schedules 展开
         async function loadScheduleData() {
             try {
-                const response = await fetch('时间表.json');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                schedules = await response.json();
-                console.log('时刻表数据已成功加载');
-                // 数据加载完成后触发界面更新
-                onSettingsChange();
-            } catch (error) {
-                console.error('❌ 加载时间表数据失败:', error);
-                document.getElementById('bus-card-1').innerHTML = '数据加载失败，请刷新重试';
+                const res = await fetch('时间表.json');
+                if (!res.ok) throw new Error(res.status);
+                const raw = await res.json();
+
+                // 1. 把“区间循环”拆成离散班次
+                schedules = expandLoopBuses(raw);
+                console.log('时刻表数据已加载并展开');
+            } catch (e) {
+                console.error('❌ 加载时刻表失败:', e);
+                schedules = { workday: {}, holiday: {} };
             }
         }
 
-        // 页面加载完成后立即获取数据
-        window.addEventListener('load', () => {
-            loadScheduleData();
-        });
+        /* ---------- 新增：区间循环拆班 ---------- */
+        function expandLoopBuses(src) {
+            const out = { workday: {}, holiday: {} };
+            ['workday', 'holiday'].forEach(day => {
+                out[day] = {};                                 // 初始化
+                Object.keys(src[day] || {}).forEach(stop => {
+                    out[day][stop] = [];                       // 该站点班次数组
+                    (src[day][stop] || []).forEach(rec => {
+                        if (rec.time.includes('-')) {          // 检测到区间
+                            const [start, end] = rec.time.split('-');
+                            let t = timeToMin(start);
+                            const endMin = timeToMin(end);
+                            while (t <= endMin) {
+                                out[day][stop].push({
+                                    time: minToTime(t),
+                                    destination: rec.destination,
+                                    notes: rec.notes
+                                });
+                                t += 5;        // 5 分钟一班，可改成 10
+                            }
+                        } else {                               // 普通固定班
+                            out[day][stop].push(rec);
+                        }
+                    });
+                });
+            });
+            return out;
+        }
 
-        // 2. 应用程序逻辑
-        document.addEventListener('DOMContentLoaded', () => {
+        /* 工具：HH:mm ↔ 分钟 */
+        function timeToMin(str) {
+            const [h, m] = str.split(':').map(Number);
+            return h * 60 + m;
+        }
+        function minToTime(min) {
+            const h = String(Math.floor(min / 60)).padStart(2, '0');
+            const m = String(min % 60).padStart(2, '0');
+            return `${h}:${m}`;
+        }
+
+        // 3. 页面入口：立刻拉数据，拉完再初始化 UI
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 3-1 先拿数据
+            await loadScheduleData();
+
+            // 3-2 再开始渲染
             const clockEl = document.getElementById('clock');
-            const dayTypeWorkdayEl = document.getElementById('workday');
-            const dayTypeHolidayEl = document.getElementById('holiday');
-            const locationSelectEl = document.getElementById('location-select');
-            const busCard1El = document.getElementById('bus-card-1');
-            const busCard2El = document.getElementById('bus-card-2');
+            const dayTypeEls = {
+                workday: document.getElementById('workday'),
+                holiday: document.getElementById('holiday')
+            };
+            const locationSel = document.getElementById('location-select');
+            const busCard1 = document.getElementById('bus-card-1');
+            const busCard2 = document.getElementById('bus-card-2');
 
             let mainInterval;
 
-            // 初始化
+            /* ---------- 以下都是你原来的逻辑，原封不动拷过来 ---------- */
             function init() {
-                // 自动设置日期类型
-                const today = new Date().getDay(); // 0 = Sunday, 6 = Saturday
-                if (today === 0 || today === 6) {
-                    dayTypeHolidayEl.checked = true;
-                } else {
-                    dayTypeWorkdayEl.checked = true;
-                }
+                // 自动设日期
+                const today = new Date().getDay();
+                (today === 0 || today === 6 ? dayTypeEls.holiday : dayTypeEls.workday).checked = true;
 
-                // 填充地点下拉框
                 populateLocations();
+                updateClock(); startClock();
+                checkTimeForDarkMode(); startDarkModeTimer();
 
-                // 启动时钟
-                updateClock();
-                setInterval(updateClock, 1000);
-                
-                // (v3) 检查夜间模式
-                checkTimeForDarkMode();
-                setInterval(checkTimeForDarkMode, 60000); // 每分钟检查一次
+                dayTypeEls.workday.addEventListener('change', onSettingsChange);
+                dayTypeEls.holiday.addEventListener('change', onSettingsChange);
+                locationSel.addEventListener('change', onSettingsChange);
 
-                // 添加事件监听
-                dayTypeWorkdayEl.addEventListener('change', onSettingsChange);
-                dayTypeHolidayEl.addEventListener('change', onSettingsChange);
-                locationSelectEl.addEventListener('change', onSettingsChange);
-                
-                // 设置定时器每10秒刷新一次班车时间
-                if(mainInterval) clearInterval(mainInterval);
-                mainInterval = setInterval(updateBusDisplay, 10000);
-            }
-            
-            // (v3) 自动夜间模式
-            function checkTimeForDarkMode() {
-                const hour = new Date().getHours();
-                // 晚上 19:00 (7 PM) 到早上 6:00 (5:59 AM) 启动夜间模式
-                if (hour >= 19 || hour < 6) {
-                    document.body.classList.add('dark-mode');
-                } else {
-                    document.body.classList.remove('dark-mode');
-                }
+                if (mainInterval) clearInterval(mainInterval);
+                mainInterval = setInterval(updateBusDisplay, 10_000);
             }
 
-            // 当设置（日期或地点）改变时
-            function onSettingsChange() {
-                populateLocations();
-                updateBusDisplay();
-            }
+            function startClock() { setInterval(updateClock, 1000); }
+            function startDarkModeTimer() { setInterval(checkTimeForDarkMode, 60_000); }
 
-            // 更新时钟显示
             function updateClock() {
-                const now = new Date();
-                const timeString = now.toLocaleTimeString('zh-CN', { hour12: false });
-                clockEl.textContent = timeString;
+                const t = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+                clockEl.textContent = t;
             }
 
-            // 根据日期类型填充地点
-            function populateLocations() {
-                // 确保数据已加载
-                if (!schedules || Object.keys(schedules).length === 0) {
-                    return;
-                }
-                
-                const currentDayType = getDayType();
-                const locations = Object.keys(schedules[currentDayType]);
-                const currentSelectedValue = locationSelectEl.value;
-                
-                locationSelectEl.innerHTML = ''; // 清空
-                
-                locations.forEach(location => {
-                    if(currentDayType === 'holiday' && location === '纪忠楼') {
-                        return;
-                    }
-                    const option = document.createElement('option');
-                    option.value = location;
-                    option.textContent = location;
-                    locationSelectEl.appendChild(option);
-                });
-
-                if (locations.includes(currentSelectedValue)) {
-                    locationSelectEl.value = currentSelectedValue;
-                }
+            function checkTimeForDarkMode() {
+                const h = new Date().getHours();
+                document.body.classList.toggle('dark-mode', h >= 19 || h < 6);
             }
 
-            // 获取当前选择的日期类型
             function getDayType() {
-                return dayTypeWorkdayEl.checked ? 'workday' : 'holiday';
+                return dayTypeEls.workday.checked ? 'workday' : 'holiday';
             }
 
-            // 核心功能：更新班车显示
+            function populateLocations() {
+                if (!schedules || !schedules.workday) return; // 保险
+                const day = getDayType();
+                const locs = Object.keys(schedules[day]).filter(l => !(day === 'holiday' && l === '纪忠楼'));
+                const cur = locationSel.value;
+                locationSel.innerHTML = '';
+                locs.forEach(l => {
+                    const opt = document.createElement('option'); opt.value = l; opt.textContent = l;
+                    locationSel.appendChild(opt);
+                });
+                if (locs.includes(cur)) locationSel.value = cur;
+            }
+
+            function onSettingsChange() { populateLocations(); updateBusDisplay(); }
+
             function updateBusDisplay() {
-                // 确保数据已加载
-                if (!schedules || Object.keys(schedules).length === 0) {
-                    showNoBusMessage(busCard1El, "正在加载数据...");
-                    busCard2El.style.display = 'none';
-                    return;
+                if (!schedules || !schedules.workday) {        // 数据还没回来
+                    showNoBusMessage(busCard1, '正在加载数据…');
+                    busCard2.style.display = 'none'; return;
                 }
-                
-                const dayType = getDayType();
-                const location = locationSelectEl.value;
-                
-                if (!location) {
-                    showNoBusMessage(busCard1El, "请选择一个上车地点");
-                    busCard2El.style.display = 'none';
-                    return;
-                }
+                const day = getDayType(), loc = locationSel.value;
+                if (!loc) { showNoBusMessage(busCard1, '请选择一个上车地点'); busCard2.style.display = 'none'; return; }
 
-                const busList = schedules[dayType][location] || [];
+                const list = (schedules[day][loc] || []).map(b => {
+                    const [h, m] = b.time.split(':').map(Number);
+                    const wt = h * 60 + m - (new Date().getHours() * 60 + new Date().getMinutes());
+                    return { ...b, waitTime: wt, busMin: h * 60 + m };
+                }).filter(b => b.waitTime >= 0).sort((a, b) => a.busMin - b.busMin);
 
-                if (busList.length === 0) {
-                    showNoBusMessage(busCard1El, `今日 ${location} 已无班车`);
-                    busCard2El.style.display = 'none';
-                    return;
-                }
+                if (!list.length) { showNoBusMessage(busCard1, `今日 ${loc} 已无班车`); busCard2.style.display = 'none'; return; }
 
-                const now = new Date();
-                const nowInMinutes = now.getHours() * 60 + now.getMinutes();
-
-                const upcomingBuses = busList
-                    .map(bus => {
-                        const [hours, minutes] = bus.time.split(':').map(Number);
-                        const busTimeInMinutes = hours * 60 + minutes;
-                        const waitTime = busTimeInMinutes - nowInMinutes;
-                        return { ...bus, waitTime, busTimeInMinutes };
-                    })
-                    .filter(bus => bus.waitTime >= 0) 
-                    .sort((a, b) => a.busTimeInMinutes - b.busTimeInMinutes); 
-
-                displayBus(busCard1El, upcomingBuses[0]);
-                displayBus(busCard2El, upcomingBuses[1]);
+                displayBus(busCard1, list[0]);
+                displayBus(busCard2, list[1]);
             }
 
-            // (v3) 在卡片中显示班车信息 (紧凑布局)
-            function displayBus(element, bus) {
-                if (bus) {
-                    element.style.display = 'block';
-                    element.classList.remove('no-bus');
-                    
-                    let notesHtml = '';
-                    if (bus.notes && bus.notes.length > 0) {
-                        notesHtml = bus.notes.map(note => {
-                            // "途径纪忠楼" 用橙色, "大巴" 用绿色, "2班车" 等用默认
-                            const specialClass = (note.includes('纪忠楼')) ? 'highlight' 
-                                             : (note.includes('大巴')) ? 'important' 
-                                             : '';
-                            return `<span class="note ${specialClass}">${note}</span>`;
-                        }).join(' ');
-                    }
+            function displayBus(el, bus) {
+                if (!bus) { showNoBusMessage(el, '已无更多班车'); return; }
+                el.style.display = 'block'; el.classList.remove('no-bus');
+                const notes = (bus.notes || []).map(n => {
+                    const cls = n.includes('纪忠楼') ? 'highlight' : n.includes('大巴') ? 'important' : '';
+                    return `<span class="note ${cls}">${n}</span>`;
+                }).join(' ') || '<span class="note-placeholder">无特殊备注</span>';
 
-                    // 注入 v1 风格的紧凑布局
-                    element.innerHTML = `
-                        <span class="bus-time">${bus.time} 发车</span>
-                        <p class="wait-time">将在 <strong>${bus.waitTime}</strong> 分钟后发车</p>
-                        <div class="bus-details">
-                            <p>开往: <strong>${bus.destination}</strong></p>
-                            <div class="notes-container">
-                                ${notesHtml || '<span class="note-placeholder">无特殊备注</span>'}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    showNoBusMessage(element, "已无更多班车");
-                    if (element.id === 'bus-card-1') {
-                        busCard2El.style.display = 'none';
-                    }
-                }
-            }
-            
-            function showNoBusMessage(element, message) {
-                 element.style.display = 'block';
-                 element.classList.add('no-bus');
-                 element.innerHTML = message;
+                el.innerHTML = `
+          <span class="bus-time">${bus.time} 发车</span>
+          <p class="wait-time">将在 <strong>${bus.waitTime}</strong> 分钟后发车</p>
+          <div class="bus-details">
+              <p>开往: <strong>${bus.destination}</strong></p>
+              <div class="notes-container">${notes}</div>
+          </div>`;
             }
 
-            // 启动!
-            init();
+            function showNoBusMessage(el, msg) {
+                el.style.display = 'block'; el.classList.add('no-bus'); el.innerHTML = msg;
+            }
+
+            /* ---------- 上面都是原逻辑，下面只改一行 ---------- */
+            init();   // 数据已拿到，可以安心初始化
         });
     </script>
 </body>
+
 </html>
