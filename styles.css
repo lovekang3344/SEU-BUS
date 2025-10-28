@@ -1,0 +1,504 @@
+/* 1. 颜色变量 (支持白天/夜间) */
+:root {
+    --c-primary: #005a9c;
+    --c-primary-dark: #004a80;
+    --c-primary-light: #e6f0f7;
+    --c-bg: #f7f9fa;
+    --c-card-bg: #ffffff;
+    --c-text-primary: #333333;
+    --c-text-secondary: #555555;
+    --c-border: #e4e7eb;
+    --c-shadow: rgba(0, 0, 0, 0.08);
+    --c-accent-red: #d9534f;
+    --c-accent-green: #5cb85c;
+    --c-accent-orange: #f0ad4e;
+    --c-note-bg: #e9e9e9;
+    --c-note-text: #333;
+    --c-btn-bg: #f0f0f0;
+    --c-btn-text: var(--c-text-primary);
+}
+
+/* 1b. 夜间模式变量 */
+body.dark-mode {
+    --c-bg: #121212;
+    --c-card-bg: #1e1e1e;
+    --c-text-primary: #e0e0e0;
+    --c-text-secondary: #b0b0b0;
+    --c-border: #3a3a3a;
+    --c-shadow: rgba(0, 0, 0, 0.2);
+    --c-primary-light: #2a3b4c;
+    --c-note-bg: #4a4a4a;
+    --c-note-text: #e0e0e0;
+    --c-btn-bg: #333333;
+    --c-btn-text: var(--c-text-primary);
+}
+
+/* 2. 基础重置和设置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+    background-color: var(--c-bg);
+    color: var(--c-text-primary);
+    margin: 0;
+    padding: 20px 10px;
+    /* 电脑版上下留白 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* 3. 主应用容器 */
+#app-container {
+    width: 100%;
+    max-width: 500px;
+    background-color: var(--c-card-bg);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px var(--c-shadow);
+    overflow: hidden;
+    border: 1px solid var(--c-border);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* 4. 头部 */
+header {
+    background: linear-gradient(135deg, var(--c-primary), var(--c-primary-dark));
+    color: white;
+    padding: 25px 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.6em;
+    font-weight: 600;
+}
+
+#clock {
+    font-size: 1.1em;
+    opacity: 0.9;
+    margin-top: 8px;
+    font-weight: 300;
+}
+
+/* 5. 控制区域 */
+.controls {
+    padding: 20px 25px;
+    background-color: var(--c-card-bg);
+    border-bottom: 1px solid var(--c-border);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.control-group {
+    margin-bottom: 18px;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--c-text-secondary);
+    font-size: 1.1em;
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    border: 1px solid var(--c-border);
+    background-color: var(--c-bg);
+    color: var(--c-text-primary);
+    appearance: none;
+    /* 适配夜间模式的SVG箭头 */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23005a9c%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+body.dark-mode select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23b0b0b0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+/* 6. 日期切换开关 & 模式切换开关（共用样式）*/
+.toggle-switch {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--c-primary);
+}
+
+/* 模式切换优化：在较大屏幕上水平排列 */
+.toggle-switch.mode-switch {
+    flex-wrap: nowrap;
+    /* 保持一行 */
+}
+
+.toggle-switch input {
+    display: none;
+}
+
+.toggle-switch label {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+    /* 减少垂直和水平内边距 */
+    margin: 0;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1em;
+    /* 减小字号 */
+    color: var(--c-primary);
+    background-color: var(--c-card-bg);
+    transition: all 0.2s ease-in-out;
+    min-width: 0;
+    /* 允许收缩 */
+}
+
+/* 模式切换标签在小屏幕上的特殊调整 */
+.toggle-switch.mode-switch label {
+    font-size: 0.9em;
+    padding: 10px 5px;
+}
+
+body.dark-mode .toggle-switch label {
+    color: var(--c-text-primary);
+}
+
+.toggle-switch label:hover {
+    background-color: var(--c-primary-light);
+}
+
+.toggle-switch input:checked+label {
+    background-color: var(--c-primary);
+    color: white;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .toggle-switch input:checked+label {
+    color: white;
+}
+
+/* 7. 结果区域 */
+#results {
+    padding: 10px 25px 25px 25px;
+}
+
+#results h2 {
+    margin: 10px 0 20px 0;
+    color: var(--c-text-secondary);
+    border-bottom: 2px solid var(--c-border);
+    padding-bottom: 10px;
+    font-weight: 600;
+    transition: color 0.3s, border-color 0.3s;
+}
+
+/* 8. 班车卡片 (v3 紧凑布局) */
+.bus-card {
+    background-color: var(--c-card-bg);
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px var(--c-shadow);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.bus-card.no-bus {
+    text-align: center;
+    padding: 30px;
+    font-size: 1.1em;
+    background-color: var(--c-primary-light);
+    border-color: var(--c-primary);
+    color: var(--c-primary-dark);
+}
+
+body.dark-mode .bus-card.no-bus {
+    color: var(--c-text-primary);
+}
+
+.bus-time {
+    float: right;
+    font-size: 1.6em;
+    font-weight: 700;
+    color: var(--c-primary);
+}
+
+.wait-time {
+    font-size: 1.2em;
+    margin: 5px 0 15px 0 !important;
+    font-weight: 500;
+}
+
+.wait-time strong {
+    color: var(--c-accent-red);
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.bus-details {
+    clear: both;
+    padding-top: 15px;
+    color: var(--c-text-secondary);
+}
+
+.bus-details p {
+    font-size: 1.1em;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.notes-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    /* 标签间距 */
+}
+
+/* 8b. 突出的备注徽章 (v3) */
+.bus-details .note {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: 600;
+    background-color: var(--c-note-bg);
+    color: var(--c-note-text);
+}
+
+/* 特殊备注高亮 */
+.bus-details .note.highlight {
+    /* 途径纪忠楼 */
+    background-color: var(--c-accent-orange);
+    color: white;
+}
+
+.bus-details .note.important {
+    /* 大巴 */
+    background-color: var(--c-accent-green);
+    color: white;
+}
+
+.note-placeholder {
+    font-style: italic;
+    color: #aaa;
+    font-size: 0.9em;
+}
+
+/* 9. 底部 */
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9em;
+    color: #aaa;
+    background-color: var(--c-bg);
+    border-top: 1px solid var(--c-border);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* 10. 路线总览表样式 */
+#all-schedules-container {
+    padding: 20px 25px;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+}
+
+.schedule-table th,
+.schedule-table td {
+    padding: 10px;
+    border: 1px solid var(--c-border);
+    text-align: left;
+    font-size: 0.95em;
+}
+
+.schedule-table th {
+    background-color: var(--c-primary-light);
+    color: var(--c-primary-dark);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.schedule-table tr:nth-child(even) {
+    background-color: var(--c-bg);
+}
+
+.schedule-table td:first-child {
+    font-weight: 600;
+    color: var(--c-primary);
+}
+
+/* 11. 提醒按钮样式 (已优化位置) */
+.alarm-area {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 15px;
+    /* 移到卡片底部 */
+    padding-top: 15px;
+    border-top: 1px dashed var(--c-border);
+}
+
+.set-alarm-btn {
+    padding: 8px 12px;
+    background-color: var(--c-btn-bg);
+    color: var(--c-btn-text);
+    border: 1px solid var(--c-border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    margin-right: 15px;
+}
+
+.set-alarm-btn:hover {
+    background-color: var(--c-primary-light);
+}
+
+.set-alarm-btn.is-set {
+    background-color: var(--c-accent-red);
+    color: white;
+    border-color: var(--c-accent-red);
+}
+
+.alarm-input-group {
+    /* 调整为内联显示，不再绝对定位 */
+    display: flex;
+    align-items: center;
+    background: var(--c-card-bg);
+    padding: 5px 0;
+    font-size: 1em;
+    color: var(--c-text-secondary);
+}
+
+.alarm-input-group input {
+    width: 45px;
+    padding: 5px;
+    border: 1px solid var(--c-border);
+    border-radius: 4px;
+    text-align: center;
+    margin: 0 5px;
+    color: var(--c-text-primary);
+    background-color: var(--c-bg);
+}
+
+.alarm-input-group button {
+    margin-left: 8px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: var(--c-primary);
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.alarm-input-group button:hover {
+    background-color: var(--c-primary-dark);
+}
+
+/* 12. 手机响应式适配 (优化模式切换) */
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+    }
+
+    #app-container {
+        border-radius: 0;
+        border: none;
+        min-height: 100vh;
+        box-shadow: none;
+    }
+
+    .controls,
+    #results,
+    #all-schedules-container {
+        padding: 20px;
+    }
+
+    /* 模式切换在手机上垂直堆叠，避免拥挤 */
+    .toggle-switch.mode-switch {
+        flex-direction: column;
+        flex-wrap: wrap;
+        height: auto;
+    }
+
+    .toggle-switch.mode-switch label {
+        padding: 10px;
+        border-radius: 0 !important;
+        border-bottom: 1px solid var(--c-primary);
+    }
+
+    .toggle-switch.mode-switch label:last-child {
+        border-bottom: none;
+    }
+
+    /* 保持边框圆角 */
+    .toggle-switch.mode-switch input:first-child+label {
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .toggle-switch.mode-switch input:last-child+label {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    .bus-card {
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .bus-time {
+        font-size: 1.4em;
+    }
+
+    .wait-time {
+        font-size: 1.1em;
+    }
+
+    .wait-time strong {
+        font-size: 1.4em;
+    }
+
+    .bus-details p {
+        font-size: 1em;
+    }
+
+    .bus-details .note {
+        font-size: 0.85em;
+    }
+
+    .alarm-area {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .set-alarm-btn {
+        margin-right: 0;
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+}
