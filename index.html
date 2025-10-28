@@ -22,6 +22,8 @@
             --c-accent-orange: #f0ad4e;
             --c-note-bg: #e9e9e9;
             --c-note-text: #333;
+            --c-btn-bg: #f0f0f0;
+            --c-btn-text: var(--c-text-primary);
         }
 
         /* 1b. 夜间模式变量 */
@@ -35,6 +37,8 @@
             --c-primary-light: #2a3b4c;
             --c-note-bg: #4a4a4a;
             --c-note-text: #e0e0e0;
+            --c-btn-bg: #333333;
+            --c-btn-text: var(--c-text-primary);
         }
 
         /* 2. 基础重置和设置 */
@@ -137,7 +141,7 @@
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23b0b0b0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
         }
 
-        /* 6. 日期切换开关 */
+        /* 6. 日期切换开关 & 模式切换开关（共用样式）*/
         .toggle-switch {
             display: flex;
             border-radius: 8px;
@@ -145,6 +149,11 @@
             border: 1px solid var(--c-primary);
         }
 
+        /* 模式切换优化：在较大屏幕上水平排列 */
+        .toggle-switch.mode-switch {
+            flex-wrap: nowrap; /* 保持一行 */
+        }
+        
         .toggle-switch input {
             display: none;
         }
@@ -152,14 +161,21 @@
         .toggle-switch label {
             flex: 1;
             text-align: center;
-            padding: 12px;
+            padding: 10px 8px; /* 减少垂直和水平内边距 */
             margin: 0;
             cursor: pointer;
             font-weight: 600;
-            font-size: 1.1em;
+            font-size: 1em; /* 减小字号 */
             color: var(--c-primary);
             background-color: var(--c-card-bg);
             transition: all 0.2s ease-in-out;
+            min-width: 0; /* 允许收缩 */
+        }
+
+        /* 模式切换标签在小屏幕上的特殊调整 */
+        .toggle-switch.mode-switch label {
+            font-size: 0.9em; 
+            padding: 10px 5px;
         }
 
         body.dark-mode .toggle-switch label {
@@ -203,6 +219,7 @@
             margin-bottom: 15px;
             box-shadow: 0 4px 12px var(--c-shadow);
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .bus-card.no-bus {
@@ -240,7 +257,6 @@
         .bus-details {
             clear: both;
             padding-top: 15px;
-            border-top: 1px dashed var(--c-border);
             color: var(--c-text-secondary);
         }
 
@@ -298,50 +314,157 @@
             transition: background-color 0.3s, border-color 0.3s;
         }
 
-        /* 10. 手机响应式适配 */
+        /* 10. 路线总览表样式 */
+        #all-schedules-container {
+            padding: 20px 25px;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            padding: 10px;
+            border: 1px solid var(--c-border);
+            text-align: left;
+            font-size: 0.95em;
+        }
+
+        .schedule-table th {
+            background-color: var(--c-primary-light);
+            color: var(--c-primary-dark);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .schedule-table tr:nth-child(even) {
+            background-color: var(--c-bg);
+        }
+
+        .schedule-table td:first-child {
+            font-weight: 600;
+            color: var(--c-primary);
+        }
+        
+        /* 11. 提醒按钮样式 (已优化位置) */
+        .alarm-area {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-top: 15px; /* 移到卡片底部 */
+            padding-top: 15px;
+            border-top: 1px dashed var(--c-border);
+        }
+
+        .set-alarm-btn {
+            padding: 8px 12px;
+            background-color: var(--c-btn-bg);
+            color: var(--c-btn-text);
+            border: 1px solid var(--c-border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            margin-right: 15px;
+        }
+
+        .set-alarm-btn:hover {
+            background-color: var(--c-primary-light);
+        }
+        
+        .set-alarm-btn.is-set {
+            background-color: var(--c-accent-red);
+            color: white;
+            border-color: var(--c-accent-red);
+        }
+        
+        .alarm-input-group {
+            /* 调整为内联显示，不再绝对定位 */
+            display: flex; 
+            align-items: center;
+            background: var(--c-card-bg);
+            padding: 5px 0;
+            font-size: 1em;
+            color: var(--c-text-secondary);
+        }
+        
+        .alarm-input-group input {
+            width: 45px;
+            padding: 5px;
+            border: 1px solid var(--c-border);
+            border-radius: 4px;
+            text-align: center;
+            margin: 0 5px;
+            color: var(--c-text-primary);
+            background-color: var(--c-bg);
+        }
+        
+        .alarm-input-group button {
+            margin-left: 8px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: var(--c-primary);
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        .alarm-input-group button:hover {
+            background-color: var(--c-primary-dark);
+        }
+        
+        /* 12. 手机响应式适配 (优化模式切换) */
         @media (max-width: 480px) {
             body {
                 padding: 0;
-                /* 手机上占满全屏 */
             }
 
             #app-container {
                 border-radius: 0;
                 border: none;
                 min-height: 100vh;
-                /* 至少一屏高 */
                 box-shadow: none;
             }
 
-            header {
-                padding: 20px 15px;
-            }
-
-            header h1 {
-                font-size: 1.4em;
-            }
-
-            #clock {
-                font-size: 1em;
-            }
-
             .controls,
-            #results {
+            #results,
+            #all-schedules-container {
                 padding: 20px;
             }
-
-            #results h2 {
-                font-size: 1.2em;
-                margin-top: 5px;
-                margin-bottom: 15px;
+            
+            /* 模式切换在手机上垂直堆叠，避免拥挤 */
+            .toggle-switch.mode-switch {
+                flex-direction: column; 
+                flex-wrap: wrap;
+                height: auto;
             }
-
-            select,
-            .toggle-switch label {
-                padding: 12px;
-                font-size: 1em;
+            
+            .toggle-switch.mode-switch label {
+                padding: 10px;
+                border-radius: 0 !important;
+                border-bottom: 1px solid var(--c-primary);
             }
-
+            
+            .toggle-switch.mode-switch label:last-child {
+                border-bottom: none;
+            }
+            /* 保持边框圆角 */
+            .toggle-switch.mode-switch input:first-child + label {
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+            }
+            .toggle-switch.mode-switch input:last-child + label {
+                border-bottom-left-radius: 8px;
+                border-bottom-right-radius: 8px;
+            }
+            
             .bus-card {
                 padding: 15px;
                 border-radius: 10px;
@@ -366,6 +489,18 @@
             .bus-details .note {
                 font-size: 0.85em;
             }
+            
+            .alarm-area {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .set-alarm-btn {
+                margin-right: 0;
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+            }
         }
     </style>
 </head>
@@ -380,6 +515,18 @@
 
         <div class="controls">
             <div class="control-group">
+                <label for="mode-toggle">选择查询模式：</label>
+                <div class="toggle-switch mode-switch">
+                    <input type="radio" id="mode-realtime" name="mode" value="realtime" checked>
+                    <label for="mode-realtime">实时查询</label>
+                    <input type="radio" id="mode-destination" name="mode" value="destination">
+                    <label for="mode-destination">反向查询</label>
+                    <input type="radio" id="mode-all" name="mode" value="all">
+                    <label for="mode-all">完整时刻表</label>
+                </div>
+            </div>
+            
+            <div class="control-group">
                 <label for="day-type">选择日期类型：</label>
                 <div class="toggle-switch">
                     <input type="radio" id="workday" name="day-type" value="workday" checked>
@@ -389,20 +536,37 @@
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="location-select">选择你的上车地点：</label>
-                <select id="location-select">
-                </select>
+            <div id="realtime-controls">
+                <div class="control-group">
+                    <label for="location-select">选择你的上车地点：</label>
+                    <select id="location-select">
+                    </select>
+                </div>
+            </div>
+
+            <div id="destination-controls" style="display:none;">
+                <div class="control-group">
+                    <label for="destination-select">选择你的终点站：</label>
+                    <select id="destination-select">
+                        <option value="">请选择终点</option>
+                    </select>
+                </div>
             </div>
         </div>
 
         <div id="results">
             <h2>接下来的班车：</h2>
             <div id="bus-card-1" class="bus-card no-bus">
-                请先选择上车地点
+                请先选择查询模式和地点
             </div>
             <div id="bus-card-2" class="bus-card" style="display:none;">
             </div>
+        </div>
+        
+        <div id="all-schedules-container" style="display:none;">
+            <h2>所有站点当日完整时刻表</h2>
+            <div id="schedules-content">
+                </div>
         </div>
 
         <footer>
@@ -413,11 +577,13 @@
     <script>
         // 1. 数据库
         let schedules = {};
+        // 提醒列表: { key: intervalId }
+        let alarmList = {}; 
 
         // 2. 拉数据：返回 Promise，方便 await
-        // 在 loadScheduleData() 里把 schedules 展开
         async function loadScheduleData() {
             try {
+                // 确保时间表.json是可访问的
                 const res = await fetch('时间表.json');
                 if (!res.ok) throw new Error(res.status);
                 const raw = await res.json();
@@ -427,31 +593,34 @@
                 console.log('时刻表数据已加载并展开');
             } catch (e) {
                 console.error('❌ 加载时刻表失败:', e);
+                // 应急数据
                 schedules = { workday: {}, holiday: {} };
             }
         }
 
-        /* ---------- 新增：区间循环拆班 ---------- */
+        /* ---------- 新增：区间循环拆班 (保留原逻辑) ---------- */
         function expandLoopBuses(src) {
             const out = { workday: {}, holiday: {} };
             ['workday', 'holiday'].forEach(day => {
-                out[day] = {};                                 // 初始化
+                out[day] = {};
                 Object.keys(src[day] || {}).forEach(stop => {
-                    out[day][stop] = [];                       // 该站点班次数组
+                    out[day][stop] = [];
                     (src[day][stop] || []).forEach(rec => {
-                        if (rec.time.includes('-')) {          // 检测到区间
+                        if (rec.time.includes('-')) {
                             const [start, end] = rec.time.split('-');
                             let t = timeToMin(start);
                             const endMin = timeToMin(end);
-                            while (t <= endMin) {
+                            // 确保循环是 5 分钟一班，如果需要 10 分钟，修改 5 为 10
+                            while (t <= endMin) { 
                                 out[day][stop].push({
                                     time: minToTime(t),
                                     destination: rec.destination,
-                                    notes: rec.notes
+                                    notes: rec.notes,
+                                    isLoop: true // 标记为循环班次
                                 });
-                                t += 5;        // 5 分钟一班，可改成 10
+                                t += 5;
                             }
-                        } else {                               // 普通固定班
+                        } else {
                             out[day][stop].push(rec);
                         }
                     });
@@ -460,7 +629,7 @@
             return out;
         }
 
-        /* 工具：HH:mm ↔ 分钟 */
+        /* 工具：HH:mm ↔ 分钟 (保留原逻辑) */
         function timeToMin(str) {
             const [h, m] = str.split(':').map(Number);
             return h * 60 + m;
@@ -469,6 +638,11 @@
             const h = String(Math.floor(min / 60)).padStart(2, '0');
             const m = String(min % 60).padStart(2, '0');
             return `${h}:${m}`;
+        }
+        /* 工具：生成唯一ID */
+        function generateBusKey(bus, loc) {
+            // 用于追踪提醒
+            return `${loc}-${bus.time}-${bus.destination}`;
         }
 
         // 3. 页面入口：立刻拉数据，拉完再初始化 UI
@@ -482,30 +656,392 @@
                 workday: document.getElementById('workday'),
                 holiday: document.getElementById('holiday')
             };
+            const modeEls = {
+                realtime: document.getElementById('mode-realtime'),
+                destination: document.getElementById('mode-destination'),
+                all: document.getElementById('mode-all')
+            };
             const locationSel = document.getElementById('location-select');
+            const destinationSel = document.getElementById('destination-select');
+            const realtimeControls = document.getElementById('realtime-controls');
+            const destinationControls = document.getElementById('destination-controls');
+            const resultsDiv = document.getElementById('results');
+            const allSchedulesDiv = document.getElementById('all-schedules-container');
+            const resultsTitle = resultsDiv.querySelector('h2');
+            
             const busCard1 = document.getElementById('bus-card-1');
             const busCard2 = document.getElementById('bus-card-2');
-
+            
+            let currentMode = 'realtime';
             let mainInterval;
 
-            /* ---------- 以下都是你原来的逻辑，原封不动拷过来 ---------- */
-            function init() {
-                // 自动设日期
-                const today = new Date().getDay();
-                (today === 0 || today === 6 ? dayTypeEls.holiday : dayTypeEls.workday).checked = true;
+            /* ---------- 新增：班次提醒核心逻辑 ---------- */
+            window.setAlarm = function(btn, busKey, busTime, busDest, busLoc) {
+                const card = btn.closest('.bus-card');
+                const inputGroup = card.querySelector('.alarm-input-group');
+                const alarmBtn = card.querySelector('.set-alarm-btn');
+                
+                // 确保点击的是确定按钮，获取输入值
+                const minutesInput = inputGroup.querySelector('#alarm-minute-input');
+                const minutes = parseInt(minutesInput.value, 10);
+                
+                // 清除旧的定时器 (如果有)
+                clearTimeout(alarmList[busKey]);
+                delete alarmList[busKey];
 
-                populateLocations();
-                updateClock(); startClock();
-                checkTimeForDarkMode(); startDarkModeTimer();
+                const now = new Date();
+                const [h, m] = busTime.split(':').map(Number);
+                const busDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+                
+                // 计算提醒时间
+                const alarmTime = busDate.getTime() - (minutes * 60 * 1000);
+                const delayMs = alarmTime - now.getTime();
+                
+                // 隐藏输入框
+                inputGroup.style.display = 'none'; 
+                
+                if (delayMs > 0) {
+                    // 检查权限
+                    if (Notification.permission !== 'granted') {
+                        Notification.requestPermission();
+                    }
 
-                dayTypeEls.workday.addEventListener('change', onSettingsChange);
-                dayTypeEls.holiday.addEventListener('change', onSettingsChange);
-                locationSel.addEventListener('change', onSettingsChange);
+                    alarmList[busKey] = setTimeout(() => {
+                        if (Notification.permission === 'granted') {
+                            new Notification('📢 班车提醒', {
+                                body: `注意！您设置的 ${busLoc} 开往 ${busDest} 的班车(${busTime}) 将在 ${minutes} 分钟后发车。`,
+                                icon: 'bus-icon.png' // 可以替换为实际图标路径
+                            });
+                        }
+                        // 移除提醒状态和计时器
+                        delete alarmList[busKey];
+                        alarmBtn.classList.remove('is-set');
+                        alarmBtn.textContent = '设置提醒';
+                        // 刷新显示
+                        if (currentMode === 'realtime') updateBusDisplay();
+                        if (currentMode === 'destination') updateDestinationDisplay();
+                    }, delayMs);
+                    
+                    // 更新按钮状态
+                    alarmBtn.classList.add('is-set');
+                    alarmBtn.textContent = `提醒已设 (提前 ${minutes} 分)`;
+                    console.log(`提醒已设置：${busKey}，将在 ${delayMs / 1000} 秒后触发`);
+                } else {
+                    // 延迟为负，说明时间已过
+                    alarmBtn.classList.remove('is-set');
+                    alarmBtn.textContent = '设置提醒';
+                    alert('该班车时间已过，无法设置提醒。');
+                }
+            };
+            
+            // 切换提醒输入框
+            window.toggleAlarmInput = function(btn) {
+                const card = btn.closest('.bus-card');
+                const inputGroup = card.querySelector('.alarm-input-group');
+                // 切换显示状态
+                inputGroup.style.display = inputGroup.style.display === 'flex' ? 'none' : 'flex';
+                // 如果显示了，则让输入框获得焦点
+                if(inputGroup.style.display === 'flex') {
+                    inputGroup.querySelector('#alarm-minute-input').focus();
+                }
+            };
+            
+            /* ---------- 填充下拉菜单 ---------- */
+            function populateLocations() {
+                if (!schedules || !schedules.workday) return;
+                const day = getDayType();
+                const locs = Object.keys(schedules[day]).filter(l => !(day === 'holiday' && l === '纪忠楼'));
+                const cur = locationSel.value;
+                locationSel.innerHTML = '';
+                locs.forEach(l => {
+                    const opt = document.createElement('option'); opt.value = l; opt.textContent = l;
+                    locationSel.appendChild(opt);
+                });
+                if (locs.includes(cur)) locationSel.value = cur;
+            }
+            
+            function populateDestinations() {
+                if (!schedules || !schedules.workday) return;
+                const day = getDayType();
+                const allDestinations = new Set();
+                
+                // 遍历所有站点下的所有班次，收集终点站
+                Object.keys(schedules[day]).forEach(stop => {
+                    (schedules[day][stop] || []).forEach(bus => {
+                        allDestinations.add(bus.destination);
+                    });
+                });
 
-                if (mainInterval) clearInterval(mainInterval);
-                mainInterval = setInterval(updateBusDisplay, 10_000);
+                const dests = Array.from(allDestinations).sort();
+                const cur = destinationSel.value;
+                destinationSel.innerHTML = '<option value="">请选择终点</option>'; // 增加提示项
+                dests.forEach(d => {
+                    const opt = document.createElement('option'); opt.value = d; opt.textContent = d;
+                    destinationSel.appendChild(opt);
+                });
+                if (dests.includes(cur)) destinationSel.value = cur;
             }
 
+            /* ---------- 模式切换逻辑 ---------- */
+            function updateModeDisplay() {
+                currentMode = document.querySelector('input[name="mode"]:checked').value;
+                
+                // 1. 切换控件显示
+                realtimeControls.style.display = currentMode === 'realtime' ? 'block' : 'none';
+                destinationControls.style.display = currentMode === 'destination' ? 'block' : 'none';
+                
+                // 2. 切换结果区显示
+                resultsDiv.style.display = (currentMode === 'realtime' || currentMode === 'destination') ? 'block' : 'none';
+                allSchedulesDiv.style.display = currentMode === 'all' ? 'block' : 'none';
+                
+                // 3. 刷新内容
+                onSettingsChange();
+            }
+
+            /* ---------- 实时查询：按地点查接下来班次 (原逻辑增强) ---------- */
+            function updateBusDisplay() {
+                resultsTitle.textContent = '接下来的班车：';
+                
+                if (!schedules || !schedules.workday) {
+                    showNoBusMessage(busCard1, '正在加载数据…', true);
+                    return;
+                }
+                
+                const day = getDayType(), loc = locationSel.value;
+                if (!loc) { showNoBusMessage(busCard1, '请选择一个上车地点', true); return; }
+
+                const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+                
+                const list = (schedules[day][loc] || []).map(b => {
+                    const busMin = timeToMin(b.time);
+                    const wt = busMin - nowMin;
+                    return { ...b, waitTime: wt, busMin: busMin, startLocation: loc };
+                }).filter(b => b.waitTime >= 0).sort((a, b) => a.busMin - b.busMin);
+
+                if (!list.length) { showNoBusMessage(busCard1, `今日 ${loc} 已无班车`, true); return; }
+
+                displayRealtimeBus(busCard1, list[0]);
+                displayRealtimeBus(busCard2, list[1]);
+            }
+            
+            // **修改点：提醒按钮移到卡片底部**
+            function displayRealtimeBus(el, bus) {
+                if (!bus) { showNoBusMessage(el, '已无更多班车', false); return; }
+                
+                el.style.display = 'block'; 
+                el.classList.remove('no-bus');
+                
+                const busKey = generateBusKey(bus, bus.startLocation);
+                const isAlarmSet = alarmList.hasOwnProperty(busKey);
+                
+                const notes = (bus.notes || []).map(n => {
+                    const cls = n.includes('纪忠楼') ? 'highlight' : n.includes('大巴') ? 'important' : '';
+                    return `<span class="note ${cls}">${n}</span>`;
+                }).join(' ') || '<span class="note-placeholder">无特殊备注</span>';
+
+                el.innerHTML = `
+                    <span class="bus-time">${bus.time} 发车</span>
+                    <p class="wait-time">将在 <strong>${bus.waitTime}</strong> 分钟后发车</p>
+                    
+                    <div class="bus-details">
+                        <p>开往: <strong>${bus.destination}</strong></p>
+                        <div class="notes-container">${notes}</div>
+                    </div>
+                    
+                    <div class="alarm-area">
+                        <button class="set-alarm-btn ${isAlarmSet ? 'is-set' : ''}" 
+                                onclick="toggleAlarmInput(this)">
+                            ${isAlarmSet ? '已设提醒 (点击修改)' : '设置提醒'}
+                        </button>
+                        
+                        <div class="alarm-input-group" style="display:none;">
+                            提前<input type="number" value="5" min="1" max="15" id="alarm-minute-input">分钟提醒
+                            <button onclick="setAlarm(this, '${busKey}', '${bus.time}', '${bus.destination}', '${bus.startLocation}')">确定</button>
+                        </div>
+                    </div>
+                    `;
+            }
+
+            /* ---------- 反向查询：按终点查所有班次 (新增功能 2) ---------- */
+            function updateDestinationDisplay() {
+                resultsTitle.textContent = '开往所选终点的班车：';
+                
+                if (!schedules || !schedules.workday) {
+                    showNoBusMessage(busCard1, '正在加载数据…', true);
+                    return;
+                }
+                
+                const day = getDayType(), destination = destinationSel.value;
+                if (!destination) { 
+                    showNoBusMessage(busCard1, '请选择一个终点站', true); return; 
+                }
+
+                const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+                let combinedList = [];
+
+                // 遍历所有站点，查找匹配终点的班次
+                Object.keys(schedules[day]).forEach(stop => {
+                    (schedules[day][stop] || []).forEach(b => {
+                        if (b.destination === destination) {
+                            const busMin = timeToMin(b.time);
+                            const waitTime = busMin - nowMin;
+                            
+                            if (waitTime >= 0) { // 只显示未发车的班次
+                                combinedList.push({
+                                    ...b, 
+                                    waitTime: waitTime, 
+                                    busMin: busMin,
+                                    startLocation: stop // 新增起始地点信息
+                                });
+                            }
+                        }
+                    });
+                });
+
+                combinedList.sort((a, b) => a.busMin - b.busMin); // 按时间排序
+
+                if (!combinedList.length) { 
+                    showNoBusMessage(busCard1, `今日已无班车开往 ${destination}`, true); busCard2.style.display = 'none'; return; 
+                }
+
+                // 新的显示逻辑：显示上车地点和终点
+                displayReverseBus(busCard1, combinedList[0]);
+                displayReverseBus(busCard2, combinedList[1]);
+            }
+            
+            // **修改点：提醒按钮移到卡片底部**
+            function displayReverseBus(el, bus) {
+                 if (!bus) { showNoBusMessage(el, '已无更多班车', false); return; }
+                
+                el.style.display = 'block'; 
+                el.classList.remove('no-bus');
+                
+                const busKey = generateBusKey(bus, bus.startLocation);
+                const isAlarmSet = alarmList.hasOwnProperty(busKey);
+                
+                const notes = (bus.notes || []).map(n => {
+                    const cls = n.includes('纪忠楼') ? 'highlight' : n.includes('大巴') ? 'important' : '';
+                    return `<span class="note ${cls}">${n}</span>`;
+                }).join(' ') || '<span class="note-placeholder">无特殊备注</span>';
+
+                el.innerHTML = `
+                    <span class="bus-time">${bus.time} 发车</span>
+                    <p class="wait-time">将在 <strong>${bus.waitTime}</strong> 分钟后发车</p>
+                    <div class="bus-details">
+                        <p>上车地点: <strong>${bus.startLocation}</strong></p>
+                        <p>开往: <strong>${bus.destination}</strong></p>
+                        <div class="notes-container">${notes}</div>
+                    </div>
+                    
+                    <div class="alarm-area">
+                        <button class="set-alarm-btn ${isAlarmSet ? 'is-set' : ''}" 
+                                onclick="toggleAlarmInput(this)">
+                            ${isAlarmSet ? '已设提醒 (点击修改)' : '设置提醒'}
+                        </button>
+                        
+                        <div class="alarm-input-group" style="display:none;">
+                            提前<input type="number" value="5" min="1" max="15" id="alarm-minute-input">分钟提醒
+                            <button onclick="setAlarm(this, '${busKey}', '${bus.time}', '${bus.destination}', '${bus.startLocation}')">确定</button>
+                        </div>
+                    </div>`;
+            }
+
+            /* ---------- 所有时刻表总览 (新增功能 1) ---------- */
+            function updateAllSchedulesDisplay() {
+                const day = getDayType();
+                const contentDiv = document.getElementById('schedules-content');
+                
+                if (!schedules || !schedules[day]) {
+                    contentDiv.innerHTML = '<p class="no-bus">时刻表数据加载中...</p>';
+                    return;
+                }
+                
+                let html = '';
+                const stops = Object.keys(schedules[day]).sort();
+
+                stops.forEach(stop => {
+                    html += `<h3>${stop}</h3>`;
+                    html += `<table class="schedule-table"><thead><tr>
+                                <th>时间</th>
+                                <th>终点</th>
+                                <th>备注</th>
+                             </tr></thead><tbody>`;
+                    
+                    (schedules[day][stop] || []).forEach(bus => {
+                        const notes = (bus.notes || []).join('，');
+                        html += `<tr>
+                                    <td>${bus.time}</td>
+                                    <td>${bus.destination}</td>
+                                    <td>${notes || '无'}</td>
+                                 </tr>`;
+                    });
+                    
+                    html += `</tbody></table>`;
+                });
+                
+                if (stops.length === 0) {
+                     contentDiv.innerHTML = '<p class="no-bus">当前日期无时刻表数据。</p>';
+                } else {
+                     contentDiv.innerHTML = html;
+                }
+            }
+
+
+            /* ---------- 通用显示和控制函数 (修改) ---------- */
+            function showNoBusMessage(el, msg, hideSecond) {
+                el.style.display = 'block'; 
+                el.classList.add('no-bus'); 
+                el.innerHTML = msg;
+                if (hideSecond) {
+                    busCard2.style.display = 'none';
+                }
+            }
+            
+            function onSettingsChange() { 
+                // 重新填充下拉菜单
+                populateLocations(); 
+                populateDestinations(); 
+                
+                // 根据模式调用不同的显示函数
+                switch (currentMode) {
+                    case 'realtime':
+                        updateBusDisplay();
+                        break;
+                    case 'destination':
+                        updateDestinationDisplay();
+                        break;
+                    case 'all':
+                        updateAllSchedulesDisplay();
+                        break;
+                }
+            }
+            
+            // 绑定事件
+            function bindEvents() {
+                // 模式切换
+                document.querySelectorAll('input[name="mode"]').forEach(radio => {
+                    radio.addEventListener('change', updateModeDisplay);
+                });
+                // 日期切换
+                dayTypeEls.workday.addEventListener('change', updateModeDisplay);
+                dayTypeEls.holiday.addEventListener('change', updateModeDisplay);
+                // 地点切换
+                locationSel.addEventListener('change', onSettingsChange);
+                destinationSel.addEventListener('change', onSettingsChange);
+
+                // 启动实时更新
+                if (mainInterval) clearInterval(mainInterval);
+                // 实时查询和反向查询都需要刷新等待时间
+                mainInterval = setInterval(() => {
+                    if (currentMode === 'realtime') {
+                        updateBusDisplay();
+                    } else if (currentMode === 'destination') {
+                        updateDestinationDisplay();
+                    }
+                }, 10_000); // 10秒刷新
+            }
+
+            /* ---------- 时钟和夜间模式 (保留原逻辑) ---------- */
             function startClock() { setInterval(updateClock, 1000); }
             function startDarkModeTimer() { setInterval(checkTimeForDarkMode, 60_000); }
 
@@ -523,63 +1059,32 @@
                 return dayTypeEls.workday.checked ? 'workday' : 'holiday';
             }
 
-            function populateLocations() {
-                if (!schedules || !schedules.workday) return; // 保险
-                const day = getDayType();
-                const locs = Object.keys(schedules[day]).filter(l => !(day === 'holiday' && l === '纪忠楼'));
-                const cur = locationSel.value;
-                locationSel.innerHTML = '';
-                locs.forEach(l => {
-                    const opt = document.createElement('option'); opt.value = l; opt.textContent = l;
-                    locationSel.appendChild(opt);
-                });
-                if (locs.includes(cur)) locationSel.value = cur;
-            }
 
-            function onSettingsChange() { populateLocations(); updateBusDisplay(); }
+            /* ---------- 网站启动器 ---------- */
+            function init() {
+                // 自动设日期
+                const today = new Date().getDay();
+                // 假设周六日为节假日，其他为工作日
+                (today === 0 || today === 6 ? dayTypeEls.holiday : dayTypeEls.workday).checked = true;
 
-            function updateBusDisplay() {
-                if (!schedules || !schedules.workday) {        // 数据还没回来
-                    showNoBusMessage(busCard1, '正在加载数据…');
-                    busCard2.style.display = 'none'; return;
+                updateClock(); startClock();
+                checkTimeForDarkMode(); startDarkModeTimer();
+                
+                // 初始化所有控件和显示
+                populateLocations();
+                populateDestinations();
+                
+                // 【新增】设置实时查询的默认地点
+                if (locationSel.options.length > 0) {
+                    // 尝试默认选择“兰园”，如果该选项不存在，则选择列表中的第一个选项
+                    const hasLanyuan = Array.from(locationSel.options).some(opt => opt.value === '兰园');
+                    locationSel.value = hasLanyuan ? '兰园' : locationSel.options[0].value;
                 }
-                const day = getDayType(), loc = locationSel.value;
-                if (!loc) { showNoBusMessage(busCard1, '请选择一个上车地点'); busCard2.style.display = 'none'; return; }
-
-                const list = (schedules[day][loc] || []).map(b => {
-                    const [h, m] = b.time.split(':').map(Number);
-                    const wt = h * 60 + m - (new Date().getHours() * 60 + new Date().getMinutes());
-                    return { ...b, waitTime: wt, busMin: h * 60 + m };
-                }).filter(b => b.waitTime >= 0).sort((a, b) => a.busMin - b.busMin);
-
-                if (!list.length) { showNoBusMessage(busCard1, `今日 ${loc} 已无班车`); busCard2.style.display = 'none'; return; }
-
-                displayBus(busCard1, list[0]);
-                displayBus(busCard2, list[1]);
+                
+                bindEvents(); 
+                updateModeDisplay(); // 根据默认模式显示内容
             }
 
-            function displayBus(el, bus) {
-                if (!bus) { showNoBusMessage(el, '已无更多班车'); return; }
-                el.style.display = 'block'; el.classList.remove('no-bus');
-                const notes = (bus.notes || []).map(n => {
-                    const cls = n.includes('纪忠楼') ? 'highlight' : n.includes('大巴') ? 'important' : '';
-                    return `<span class="note ${cls}">${n}</span>`;
-                }).join(' ') || '<span class="note-placeholder">无特殊备注</span>';
-
-                el.innerHTML = `
-          <span class="bus-time">${bus.time} 发车</span>
-          <p class="wait-time">将在 <strong>${bus.waitTime}</strong> 分钟后发车</p>
-          <div class="bus-details">
-              <p>开往: <strong>${bus.destination}</strong></p>
-              <div class="notes-container">${notes}</div>
-          </div>`;
-            }
-
-            function showNoBusMessage(el, msg) {
-                el.style.display = 'block'; el.classList.add('no-bus'); el.innerHTML = msg;
-            }
-
-            /* ---------- 上面都是原逻辑，下面只改一行 ---------- */
             init();   // 数据已拿到，可以安心初始化
         });
     </script>
