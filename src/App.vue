@@ -381,15 +381,24 @@ function setAlarm(busKey, busTime, busDest, busLoc, minutes) {
 function triggerAlarm(busLoc, busDest, busTime, minutes) {
   const message = `📢 班车提醒！\n\n${busLoc} 开往 ${busDest} 的班车(${busTime}) 将在 ${minutes} 分钟后发车。`
   
-  alert(message)
-  
   playAlarmSound()
   vibrateDevice()
+  
+  setTimeout(() => {
+    alert(message)
+  }, 100)
 }
 
 function playAlarmSound() {
   try {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+    console.log('开始播放提醒声音')
+    const AudioContext = window.AudioContext || window.webkitAudioContext
+    if (!AudioContext) {
+      console.warn('当前浏览器不支持Web Audio API')
+      return
+    }
+    
+    const audioContext = new AudioContext()
     const oscillator = audioContext.createOscillator()
     const gainNode = audioContext.createGain()
     
@@ -405,10 +414,11 @@ function playAlarmSound() {
     setTimeout(() => {
       oscillator.stop()
       audioContext.close()
+      console.log('第一声播放完成')
     }, 500)
     
     setTimeout(() => {
-      const audioContext2 = new (window.AudioContext || window.webkitAudioContext)()
+      const audioContext2 = new AudioContext()
       const oscillator2 = audioContext2.createOscillator()
       const gainNode2 = audioContext2.createGain()
       
@@ -424,6 +434,7 @@ function playAlarmSound() {
       setTimeout(() => {
         oscillator2.stop()
         audioContext2.close()
+        console.log('第二声播放完成')
       }, 500)
     }, 600)
   } catch (error) {
@@ -433,7 +444,15 @@ function playAlarmSound() {
 
 function vibrateDevice() {
   if ('vibrate' in navigator) {
-    navigator.vibrate([200, 100, 200, 100, 200])
+    console.log('开始震动')
+    try {
+      navigator.vibrate([200, 100, 200, 100, 200, 100, 200])
+      console.log('震动成功')
+    } catch (error) {
+      console.error('震动失败:', error)
+    }
+  } else {
+    console.warn('当前浏览器不支持震动功能')
   }
 }
 
