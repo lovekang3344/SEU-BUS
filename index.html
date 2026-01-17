@@ -1,100 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>校园接驳车时刻表</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-
-<body>
-    <div id="app-container">
-        <!-- 头部：新增Logo和基本的Flex布局来对齐元素 -->
-        <header style="display: flex; justify-content: space-between; align-items: center;">
-            <!-- Logo 和标题的容器 -->
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <!-- 东南大学 Logo -->
-                <img src="./school.svg" alt="东南大学校徽" class="school-logo" style="height: 40px; width: auto; object-fit: contain;">
-                <h1>校园接驳车实时查询</h1>
-            </div>
-            <div id="clock">--:--:--</div>
-        </header>
-
-        <div class="controls">
-            <div class="control-group">
-                <label for="mode-toggle">选择查询模式：</label>
-                <div class="toggle-switch mode-switch">
-                    <input type="radio" id="mode-realtime" name="mode" value="realtime" checked>
-                    <label for="mode-realtime">实时查询</label>
-                    <input type="radio" id="mode-destination" name="mode" value="destination">
-                    <label for="mode-destination">反向查询</label>
-                    <input type="radio" id="mode-all" name="mode" value="all">
-                    <label for="mode-all">完整时刻表</label>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label for="day-type">选择日期类型：</label>
-                <div class="toggle-switch">
-                    <input type="radio" id="workday" name="day-type" value="workday" checked>
-                    <label for="workday">工作日</label>
-                    <input type="radio" id="holiday" name="day-type" value="holiday">
-                    <label for="holiday">节假日</label>
-                </div>
-            </div>
-
-            <div id="realtime-controls">
-                <div class="control-group">
-                    <label for="location-select">选择你的上车地点：</label>
-                    <select id="location-select">
-                    </select>
-                </div>
-            </div>
-
-            <div id="destination-controls" style="display:none;">
-                <div class="control-group">
-                    <label for="destination-select">选择你的终点站：</label>
-                    <select id="destination-select">
-                        <option value="">请选择终点</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div id="results">
-            <h2>接下来的班车：</h2>
-            <div id="bus-card-1" class="bus-card no-bus">
-                请先选择查询模式和地点
-            </div>
-            <div id="bus-card-2" class="bus-card" style="display:none;">
-            </div>
-        </div>
-
-        <div id="all-schedules-container">
-            <div id="all-schedules-controls" style="margin-bottom: 20px;">
-                <label for="all-location-select" style="font-weight: bold;">选择起点：</label>
-                <select id="all-location-select"></select>
-            </div>
-            <div id="schedules-content"></div>
-        </div>
-
-        <!-- 页脚：更新为 GitHub SVG 图标和新的提示文本 -->
-        <footer>
-            <p>数据基于2025年10月20日起执行的时刻表</p>
-            <p>
-                <a href="https://github.com/lovekang3344/SEU-BUS" target="_blank" title="前往 GitHub 支持项目">
-                    <!-- GitHub SVG 图标，使用行内样式保证垂直对齐和间距 -->
-                    <svg viewBox="0 0 16 16" width="16" height="16" style="display: inline-block; vertical-align: text-bottom; fill: currentColor; margin-right: 5px;">
-                        <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2.0-.21.15-.46.55-.38C13.71 14.53 16 11.54 16 8c0-4.42-3.58-8-8-8z"></path>
-                    </svg>
-                    如有帮助，请给我们点赞
-                </a>
-            </p>
-        </footer>
-    </div>
-
-    <script src="scripts.js"></script>
-</body>
-
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>
