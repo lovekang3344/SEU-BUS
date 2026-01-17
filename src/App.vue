@@ -33,7 +33,7 @@
               v-for="mode in modes" 
               :key="mode.value"
               class="flex-1 text-center py-2.5 px-2 m-0 cursor-pointer font-semibold text-sm text-primary dark:text-gray-200 bg-white dark:bg-gray-700 transition-all duration-200 min-w-0 hover:bg-primary-light dark:hover:bg-gray-600"
-              :class="{ 'bg-[#005a9c] dark:bg-[#0077cc] text-white font-bold shadow-inner': currentMode === mode.value }"
+              :class="{ '!bg-primary dark:!bg-blue-500 !text-white !font-bold shadow-inner': currentMode === mode.value }"
             >
               <input type="radio" :value="mode.value" v-model="currentMode" class="hidden">
               {{ mode.label }}
@@ -48,7 +48,7 @@
               v-for="day in dayTypes" 
               :key="day.value"
               class="flex-1 text-center py-2.5 px-2 m-0 cursor-pointer font-semibold text-base text-primary dark:text-gray-200 bg-white dark:bg-gray-700 transition-all duration-200 hover:bg-primary-light dark:hover:bg-gray-600"
-              :class="{ 'bg-[#005a9c] dark:bg-[#0077cc] text-white font-bold shadow-inner': dayType === day.value }"
+              :class="{ '!bg-primary dark:!bg-blue-500 !text-white !font-bold shadow-inner': dayType === day.value }"
             >
               <input type="radio" :value="day.value" v-model="dayType" class="hidden">
               {{ day.label }}
