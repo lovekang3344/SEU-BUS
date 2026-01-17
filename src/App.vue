@@ -255,7 +255,7 @@ function generateBusKey(bus, loc) {
 
 async function loadScheduleData() {
   try {
-    const res = await fetch('时间表.json')
+    const res = await fetch('/SEU-BUS/time.json')
     if (!res.ok) throw new Error(res.status)
     const raw = await res.json()
     schedules.value = expandLoopBuses(raw)

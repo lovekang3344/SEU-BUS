@@ -98,20 +98,4 @@
 
 本项目为开源项目，欢迎提出建议和贡献代码。
 
-## 项目结构
 
-```
-├── src/
-│   ├── components/
-│   │   ├── BusCard.vue      # 班车卡片组件
-│   │   └── ScheduleTable.vue # 时刻表组件
-│   ├── App.vue               # 主应用组件
-│   ├── main.js               # 应用入口
-│   └── style.css             # 全局样式
-├── 时间表.json               # 班车时刻表数据
-├── school.svg               # 东南大学校徽
-├── package.json             # 项目配置
-├── vite.config.js          # Vite配置
-├── tailwind.config.js      # TailwindCSS配置
-└── README.md               # 项目说明
-```

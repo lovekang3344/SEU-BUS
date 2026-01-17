@@ -8,7 +8,7 @@ let alarmList = {};
 async function loadScheduleData() {
     try {
         // 确保时间表.json是可访问的
-        const res = await fetch('时间表.json');
+        const res = await fetch('SEU-BUS/time.json');
         if (!res.ok) throw new Error(res.status);
         const raw = await res.json();
 
