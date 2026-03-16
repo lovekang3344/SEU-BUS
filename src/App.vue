@@ -86,16 +86,18 @@
         </div>
         
         <div v-else>
-          <BusCard 
-            v-for="(bus, index) in displayBuses" 
-            :key="index"
-            :bus="bus"
-            :mode="currentMode"
-            ref="busCardRefs"
-            @set-alarm="setAlarm"
-            @toggle-alarm-input="toggleAlarmInput"
-            @cancel-alarm="cancelAlarm"
-          />
+          <transition-group name="bus-list" tag="div" class="space-y-4">
+            <BusCard 
+              v-for="bus in displayBuses" 
+              :key="`${bus.startLocation}-${bus.time}-${bus.destination}`"
+              :bus="bus"
+              :mode="currentMode"
+              ref="busCardRefs"
+              @set-alarm="setAlarm"
+              @toggle-alarm-input="toggleAlarmInput"
+              @cancel-alarm="cancelAlarm"
+            />
+          </transition-group>
         </div>
       </div>
 
@@ -124,6 +126,23 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+.bus-list-enter-active,
+.bus-list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.bus-list-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.bus-list-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+</style>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
@@ -399,6 +418,7 @@ function playAlarmSound() {
       return
     }
     
+    // 创建单个音频上下文，使用更柔和的声音
     const audioContext = new AudioContext()
     const oscillator = audioContext.createOscillator()
     const gainNode = audioContext.createGain()
@@ -406,37 +426,22 @@ function playAlarmSound() {
     oscillator.connect(gainNode)
     gainNode.connect(audioContext.destination)
     
-    oscillator.frequency.value = 800
-    oscillator.type = 'sine'
-    gainNode.gain.value = 0.3
+    // 降低频率和音量，使用更柔和的三角形波形
+    oscillator.frequency.value = 500
+    oscillator.type = 'triangle'
+    
+    // 添加淡入淡出效果
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime)
+    gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.1)
+    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.6)
     
     oscillator.start()
     
+    // 缩短声音持续时间
     setTimeout(() => {
       oscillator.stop()
       audioContext.close()
-      console.log('第一声播放完成')
-    }, 500)
-    
-    setTimeout(() => {
-      const audioContext2 = new AudioContext()
-      const oscillator2 = audioContext2.createOscillator()
-      const gainNode2 = audioContext2.createGain()
-      
-      oscillator2.connect(gainNode2)
-      gainNode2.connect(audioContext2.destination)
-      
-      oscillator2.frequency.value = 800
-      oscillator2.type = 'sine'
-      gainNode2.gain.value = 0.3
-      
-      oscillator2.start()
-      
-      setTimeout(() => {
-        oscillator2.stop()
-        audioContext2.close()
-        console.log('第二声播放完成')
-      }, 500)
+      console.log('提醒声音播放完成')
     }, 600)
   } catch (error) {
     console.error('播放提醒声音失败:', error)

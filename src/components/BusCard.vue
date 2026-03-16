@@ -1,8 +1,13 @@
 <template>
-  <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-5 mb-4 shadow-md transition-all duration-300 relative" :data-bus-key="busKey">
+  <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-5 shadow-md transition-all duration-300 relative" :data-bus-key="busKey">
     <span class="float-right text-2xl font-bold text-primary">{{ bus.time }} 发车</span>
     <p class="text-xl my-1.5 mb-4 font-medium">
-      将在 <strong class="text-accent-red text-2xl font-bold">{{ bus.waitTime }}</strong> 分钟后发车
+      <template v-if="bus.waitTime > 0">
+        将在 <strong class="text-accent-red text-2xl font-bold">{{ bus.waitTime }}</strong> 分钟后发车
+      </template>
+      <template v-else>
+        <strong class="text-accent-red text-2xl font-bold">即将发车</strong>
+      </template>
     </p>
     
     <div class="clear-both pt-4 text-gray-600 dark:text-gray-300">
