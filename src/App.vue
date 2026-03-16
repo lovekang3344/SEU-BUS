@@ -132,6 +132,7 @@ import ScheduleTable from './components/ScheduleTable.vue'
 
 const schedules = ref(null)
 const currentTime = ref('')
+const currentMin = ref(0) // 响应式的当前时间（分钟）
 const currentMode = ref('realtime')
 const dayType = ref('workday')
 const selectedLocation = ref('')
@@ -175,14 +176,13 @@ const destinations = computed(() => {
 const displayBuses = computed(() => {
   if (!schedules.value || !schedules.value[dayType.value]) return []
   
-  const nowMin = new Date().getHours() * 60 + new Date().getMinutes()
   let list = []
 
   if (currentMode.value === 'realtime') {
     if (!selectedLocation.value) return []
     list = (schedules.value[dayType.value][selectedLocation.value] || []).map(b => ({
       ...b,
-      waitTime: timeToMin(b.time) - nowMin,
+      waitTime: timeToMin(b.time) - currentMin.value,
       busMin: timeToMin(b.time),
       startLocation: selectedLocation.value
     })).filter(b => b.waitTime >= 0).sort((a, b) => a.busMin - b.busMin)
@@ -192,7 +192,7 @@ const displayBuses = computed(() => {
       (schedules.value[dayType.value][stop] || []).forEach(b => {
         if (b.destination === selectedDestination.value) {
           const busMin = timeToMin(b.time)
-          const waitTime = busMin - nowMin
+          const waitTime = busMin - currentMin.value
           if (waitTime >= 0) {
             list.push({
               ...b,
@@ -333,6 +333,7 @@ async function isHoliday(date) {
 function updateClock() {
   const now = new Date()
   currentTime.value = now.toLocaleTimeString('zh-CN', { hour12: false })
+  currentMin.value = now.getHours() * 60 + now.getMinutes() // 更新响应式的当前时间（分钟）
 }
 
 async function autoDetectDayType() {
@@ -504,7 +505,7 @@ onMounted(async () => {
     }
   }
   
-  updateClock()
+  updateClock() // 初始化currentMin
   clockInterval = setInterval(updateClock, 1000)
 })
 
