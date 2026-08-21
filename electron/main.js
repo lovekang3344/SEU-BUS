@@ -48,6 +48,64 @@ function createTrayIcon() {
 
 let mainWindow
 let tray
+let passthroughEnabled = false
+
+// Enable passthrough when mouse is not over interactive zones
+function enablePassthrough() {
+  if (!mainWindow || mainWindow.isDestroyed()) return
+  const cursorPos = screen.getCursorScreenPoint()
+  const [winX, winY] = mainWindow.getPosition()
+  const [winW, winH] = mainWindow.getSize()
+
+  const inWindow = cursorPos.x >= winX && cursorPos.x < winX + winW &&
+                   cursorPos.y >= winY && cursorPos.y < winY + winH
+
+  if (!inWindow) {
+    if (!passthroughEnabled) {
+      mainWindow.setIgnoreMouseEvents(true, { forward: true })
+      passthroughEnabled = true
+    }
+    return
+  }
+
+  // Interactive zones: squirrel (top area) and panel (bottom area)
+  const sqLeft = winX + 80, sqRight = winX + 240
+  const sqTop = winY + 40, sqBottom = winY + 280
+  const panelLeft = winX + 10, panelRight = winX + 310
+  const panelTop = winY + 250, panelBottom = winY + winH
+
+  const overInteractive = (
+    (cursorPos.x >= sqLeft && cursorPos.x < sqRight && cursorPos.y >= sqTop && cursorPos.y < sqBottom) ||
+    (cursorPos.x >= panelLeft && cursorPos.x < panelRight && cursorPos.y >= panelTop && cursorPos.y < panelBottom)
+  )
+
+  if (overInteractive !== passthroughEnabled) {
+    mainWindow.setIgnoreMouseEvents(!overInteractive, { forward: true })
+    passthroughEnabled = !overInteractive
+  }
+}
+
+// Start listening to cursor movements in the main process
+function startCursorTracking() {
+  if (mainWindow) {
+    mainWindow.on('cursor-enter', () => {
+      enablePassthrough()
+    })
+    mainWindow.on('cursor-leave', () => {
+      if (!passthroughEnabled) {
+        mainWindow.setIgnoreMouseEvents(true, { forward: true })
+        passthroughEnabled = true
+      }
+    })
+    mainWindow.on('show', () => enablePassthrough())
+    mainWindow.on('hide', () => {
+      if (!passthroughEnabled) {
+        mainWindow.setIgnoreMouseEvents(true, { forward: true })
+        passthroughEnabled = true
+      }
+    })
+  }
+}
 
 function createWindow() {
   const config = getConfig()
@@ -112,8 +170,8 @@ function createWindow() {
     mainWindow.focus()
   })
 
-  // Enable click-through when not interacting
-  mainWindow.setIgnoreMouseEvents(false, { forward: true })
+  // Enable dynamic mouse passthrough
+  startCursorTracking()
 
   // Load the app
   if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
@@ -145,6 +203,10 @@ function createWindow() {
   mainWindow.on('minimize', (e) => {
     e.preventDefault()
     mainWindow.hide()
+  })
+
+  mainWindow.on('closed', () => {
+    mainWindow = null
   })
 }
 

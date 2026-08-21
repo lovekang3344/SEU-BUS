@@ -17,9 +17,15 @@
       <!-- Tooltip: next bus info on hover -->
       <transition name="pop">
         <div v-if="showTooltip && !showDetail && nextBusInfo" class="tooltip">
-          <div class="tooltip-time">{{ nextBusInfo.time }}</div>
-          <div class="tooltip-wait">{{ nextBusInfo.waitText }}</div>
-          <div class="tooltip-route">{{ userLocation }} → {{ userDestination }}</div>
+          <template v-if="nextBusInfo.noMore">
+            <div class="tooltip-time" style="font-size:14px;color:#999;">😢</div>
+            <div class="tooltip-wait" style="font-size:11px;color:#999;">对不起同学，今天已经没有班车了</div>
+          </template>
+          <template v-else>
+            <div class="tooltip-time">{{ nextBusInfo.time }}</div>
+            <div class="tooltip-wait">{{ nextBusInfo.waitText }}</div>
+            <div class="tooltip-route">{{ userLocation }} → {{ userDestination }}</div>
+          </template>
         </div>
       </transition>
 
@@ -127,13 +133,18 @@
           </transition>
 
           <!-- 下一班车信息 -->
-          <div v-if="nextBusInfo" class="next-bus">
+          <div v-if="nextBusInfo && !nextBusInfo.noMore" class="next-bus">
             <div class="next-label">下一班</div>
             <div class="next-time">{{ nextBusInfo.time }}</div>
             <div class="next-wait">{{ nextBusInfo.waitText }}</div>
             <button class="alarm-btn next-alarm" :class="{ active: nextBusInfo.alarmSet }" @click.stop="toggleAlarmForBus(nextBusInfo)">
               {{ nextBusInfo.alarmSet ? '🔕 取消' : '🔔 提醒' }}
             </button>
+          </div>
+          <div v-if="nextBusInfo?.noMore" class="next-bus" style="background:#f5f5f5;border:1px solid #eee;">
+            <div class="next-label" style="color:#999;">今天</div>
+            <div class="next-time" style="font-size:18px;color:#999;">已经没有班车了</div>
+            <div class="next-wait" style="color:#bbb;">明天再来吧~</div>
           </div>
 
           <!-- 即将发车列表（排除下一班）-->
@@ -162,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { getDayType } from '../utils/holidays.js'
 import { getScheduleData } from '../utils/scheduleData.js'
 import { expandLoopBuses } from '../utils/expandSchedules.js'
@@ -203,10 +214,10 @@ const careMessages = ref([
 
 // Drag state
 let isDragging = false
+let hasMoved = false
 let clickStart = { x: 0, y: 0 }
 let dragStart = { x: 0, y: 0 }
-let windowStart = [0, 0]
-let hasMoved = false
+let dragAnchorWinPos = [0, 0] // Window position captured ONCE at drag start - never updated during drag
 let dragReady = false
 
 const alarmTimers = ref({})
@@ -219,11 +230,6 @@ async function loadConfig() {
       if (config.location) userLocation.value = config.location
       if (config.destination) userDestination.value = config.destination
       if (config.reminderMinutes) reminderMinutes.value = config.reminderMinutes
-      // Initialize windowStart immediately from saved config to prevent first-click jump
-      if (config.x != null && config.y != null) {
-        windowStart = [config.x, config.y]
-        console.log('[DeskPet] windowStart initialized from config:', windowStart)
-      }
     } catch (e) { console.error(e) }
   }
 }
@@ -295,7 +301,7 @@ const nextBusInfo = computed(() => {
       }
     }
   }
-  return null
+  return { noMore: true }
 })
 
 const upcomingBuses = computed(() => {
@@ -464,8 +470,8 @@ function onSquirrelClick(e) {
   toggleDetail()
 }
 
-// --- Drag ---
 function startDrag(e) {
+  dragAnchorWinPos = [e.screenX - 160, e.screenY - 200]
   clickStart = { x: e.screenX, y: e.screenY }
   dragStart = { x: e.screenX, y: e.screenY }
   hasMoved = false
@@ -481,22 +487,14 @@ function onDragMove(e) {
     if (dx * dx + dy * dy > 25) { // 5px threshold
       isDragging = true
       hasMoved = true
-      // Fetch window position asynchronously
-      if (window.electronAPI) {
-        window.electronAPI.getWindowPosition().then(pos => {
-          windowStart = pos || [0, 0]
-        }).catch(() => {
-          windowStart = [clickStart.x, clickStart.y]
-        })
-      }
     }
     return
   }
   if (!window.electronAPI) return
   const dx = e.screenX - dragStart.x
   const dy = e.screenY - dragStart.y
-  const newX = (windowStart[0] ?? 0) + dx
-  const newY = (windowStart[1] ?? 0) + dy
+  const newX = (dragAnchorWinPos[0] ?? 0) + dx
+  const newY = (dragAnchorWinPos[1] ?? 0) + dy
   window.electronAPI.setWindowPosition(newX, newY)
 }
 
@@ -574,15 +572,6 @@ function toggleDetail() {
 // --- Lifecycle ---
 onMounted(async () => {
   console.log('[DeskPet] onMounted fired')
-  // Initialize window start position immediately
-  if (window.electronAPI?.getWindowPosition) {
-    window.electronAPI.getWindowPosition().then(pos => {
-      windowStart = pos || [0, 0]
-      console.log('[DeskPet] Initial window position:', windowStart)
-    }).catch(() => {
-      windowStart = [0, 0]
-    })
-  }
   try {
     await loadConfig()
   } catch (e) {

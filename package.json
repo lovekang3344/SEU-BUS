@@ -10,8 +10,8 @@
     "postbuild": "node -e \"const fs=require('fs');fs.copyFileSync('public/time.json','dist/time.json')\"",
     "preview": "vite preview",
     "electron:dev": "concurrently -k \"pnpm dev\" \"wait-on http://localhost:5173 --timeout 60000 && electron .\"",
-    "electron:build": "VITE_ELECTRON_BUILD=1 pnpm build && electron-builder --win --x64",
-    "dist": "VITE_ELECTRON_BUILD=1 pnpm build && electron-builder --win --x64",
+    "electron:build": "cross-env VITE_ELECTRON_BUILD=1 pnpm build && electron-builder --win --x64",
+    "dist": "cross-env VITE_ELECTRON_BUILD=1 pnpm build && electron-builder --win --x64",
     "postdist": "node scripts/optimize-package.js"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "@vitejs/plugin-vue": "^5.0.0",
     "autoprefixer": "^10.4.16",
     "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0",
     "electron": "^43.4.1",
     "electron-builder": "^26.15.3",
     "postcss": "^8.4.32",
