@@ -250,7 +250,7 @@ function timeToMin(str) {
 
 async function loadScheduleData() {
   try {
-    const res = await fetch('/time.json')
+    const res = await fetch('/SEU-BUS/time.json')
     if (!res.ok) throw new Error(res.status)
     const raw = await res.json()
     schedules.value = expandLoopBuses(raw)

@@ -10,8 +10,8 @@
     "postbuild": "node -e \"const fs=require('fs');fs.copyFileSync('public/time.json','dist/time.json')\"",
     "preview": "vite preview",
     "electron:dev": "concurrently -k \"pnpm dev\" \"wait-on http://localhost:5173 --timeout 60000 && electron .\"",
-    "electron:build": "pnpm build && electron-builder --win --x64",
-    "dist": "pnpm build && electron-builder --win --x64",
+    "electron:build": "VITE_ELECTRON_BUILD=1 pnpm build && electron-builder --win --x64",
+    "dist": "VITE_ELECTRON_BUILD=1 pnpm build && electron-builder --win --x64",
     "postdist": "node scripts/optimize-package.js"
   },
   "dependencies": {
