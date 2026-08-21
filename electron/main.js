@@ -87,24 +87,86 @@ function enablePassthrough() {
 
 // Start listening to cursor movements in the main process
 function startCursorTracking() {
-  if (mainWindow) {
-    mainWindow.on('cursor-enter', () => {
-      enablePassthrough()
-    })
-    mainWindow.on('cursor-leave', () => {
-      if (!passthroughEnabled) {
+  if (!mainWindow) return
+
+  // Track mouse position on screen to drive passthrough decisions
+  let lastCursorPos = screen.getCursorScreenPoint()
+
+  function evaluatePassthrough(cursorPos) {
+    const [winX, winY] = mainWindow.getPosition()
+    const [winW, winH] = mainWindow.getSize()
+
+    // Window bounds
+    const inWindow = cursorPos.x >= winX && cursorPos.x < winX + winW &&
+                     cursorPos.y >= winY && cursorPos.y < winY + winH
+
+    if (!inWindow) {
+      // Mouse outside window — enable passthrough
+      if (passthroughEnabled !== true) {
         mainWindow.setIgnoreMouseEvents(true, { forward: true })
         passthroughEnabled = true
       }
-    })
-    mainWindow.on('show', () => enablePassthrough())
-    mainWindow.on('hide', () => {
-      if (!passthroughEnabled) {
-        mainWindow.setIgnoreMouseEvents(true, { forward: true })
-        passthroughEnabled = true
-      }
-    })
+      return
+    }
+
+    // Interactive zones within the window
+    const sqLeft = winX + 80, sqRight = winX + 240
+    const sqTop = winY + 40, sqBottom = winY + 280
+    const panelLeft = winX + 10, panelRight = winX + 310
+    const panelTop = winY + 250, panelBottom = winY + winH
+
+    const overInteractive = (
+      (cursorPos.x >= sqLeft && cursorPos.x < sqRight && cursorPos.y >= sqTop && cursorPos.y < sqBottom) ||
+      (cursorPos.x >= panelLeft && cursorPos.x < panelRight && cursorPos.y >= panelTop && cursorPos.y < panelBottom)
+    )
+
+    const newState = !overInteractive
+    if (newState !== passthroughEnabled) {
+      mainWindow.setIgnoreMouseEvents(newState, { forward: true })
+      passthroughEnabled = newState
+    }
   }
+
+  let trackerInterval = null
+  function startTracker() {
+    stopTracker()
+    trackerInterval = setInterval(() => {
+      const pos = screen.getCursorScreenPoint()
+      if (pos.x !== lastCursorPos.x || pos.y !== lastCursorPos.y) {
+        lastCursorPos = pos
+        evaluatePassthrough(pos)
+      }
+    }, 50)
+  }
+  function stopTracker() {
+    if (trackerInterval) {
+      clearInterval(trackerInterval)
+      trackerInterval = null
+    }
+  }
+
+  startTracker()
+
+  mainWindow.on('close', () => stopTracker())
+  mainWindow.on('destroy', () => stopTracker())
+
+  // Also handle cursor-enter/leave as fallback
+  mainWindow.on('cursor-enter', () => {
+    evaluatePassthrough(screen.getCursorScreenPoint())
+  })
+  mainWindow.on('cursor-leave', () => {
+    evaluatePassthrough(screen.getCursorScreenPoint())
+  })
+  mainWindow.on('mousemove', () => {
+    evaluatePassthrough(screen.getCursorScreenPoint())
+  })
+  mainWindow.on('show', () => {
+    evaluatePassthrough(screen.getCursorScreenPoint())
+    startTracker()
+  })
+  mainWindow.on('hide', () => {
+    stopTracker()
+  })
 }
 
 function createWindow() {
@@ -190,13 +252,14 @@ function createWindow() {
     mainWindow.webContents.send('config-loaded', config)
   })
 
-  // Save position on move
+  // Save position on move and notify renderer for passthrough update
   mainWindow.on('moved', () => {
     const [x, y] = mainWindow.getPosition()
     const config = getConfig()
     config.x = x
     config.y = y
     saveConfig(config)
+    mainWindow.webContents.send('window-moved', [x, y])
   })
 
   // When window is minimized, hide it but keep tray icon
