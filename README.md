@@ -153,15 +153,15 @@ pnpm dist
 # 1. 确保本地代码是最新的
 git pull origin main
 
-# 2. 创建新版本标签
-git tag v1.1.0
-git push origin v1.1.0
+# 2. 创建新版本标签（每次发版递增版本号）
+git tag v1.1.1
+git push origin v1.1.1
 
-# 3. 或者手动触发 GitHub Actions
-# 进入 GitHub -> Actions -> Build & Release -> Run workflow
+# 3. GitHub Actions 会自动在 Windows 服务器构建安装包并创建 Release
+# 4. 前往 https://github.com/lovekang3344/SEU-BUS/releases 下载 .exe
 ```
 
-GitHub Actions 会自动在 Windows 服务器上构建安装包并创建 Release。下载链接在 Releases 页面。
+> **说明**：仓库保持公开（代码可查），Release 里只提供 `.exe` 安装包供用户使用。GitHub 会自动为每个 tag 生成源码压缩包，普通用户无需关心。
 
 ---
 
