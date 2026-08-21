@@ -217,7 +217,7 @@ let isDragging = false
 let hasMoved = false
 let clickStart = { x: 0, y: 0 }
 let dragStart = { x: 0, y: 0 }
-let dragAnchorWinPos = [0, 0] // Window position captured ONCE at drag start - never updated during drag
+let dragAnchorWinPos = [0, 0]
 let dragReady = false
 
 const alarmTimers = ref({})
@@ -470,8 +470,15 @@ function onSquirrelClick(e) {
   toggleDetail()
 }
 
-function startDrag(e) {
-  dragAnchorWinPos = [e.screenX - 160, e.screenY - 200]
+async function startDrag(e) {
+  // Capture current window position fresh for each drag
+  if (window.electronAPI) {
+    try {
+      dragAnchorWinPos = await window.electronAPI.getWindowPosition()
+    } catch {
+      dragAnchorWinPos = [0, 0]
+    }
+  }
   clickStart = { x: e.screenX, y: e.screenY }
   dragStart = { x: e.screenX, y: e.screenY }
   hasMoved = false
