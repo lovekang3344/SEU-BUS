@@ -1,3 +1,8 @@
 node_modules/
 dist/
 .env
+release/
+*.png
+tray.ico
+app-icon*.png
+favicon.ico

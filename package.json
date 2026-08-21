@@ -1,11 +1,18 @@
 {
-  "name": "seu-bus-vue",
+  "name": "seu-bus-desk-pet",
   "version": "1.0.0",
-  "type": "module",
+  "description": "东南大学校园接驳车桌宠提醒工具",
+  "author": "lovekang3344",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "node scripts/embed-schedule.js && vite build",
+    "postbuild": "node -e \"const fs=require('fs');fs.copyFileSync('public/time.json','dist/time.json')\"",
+    "preview": "vite preview",
+    "electron:dev": "concurrently -k \"pnpm dev\" \"wait-on http://localhost:5173 --timeout 60000 && electron .\"",
+    "electron:build": "pnpm build && electron-builder --win --x64",
+    "dist": "pnpm build && electron-builder --win --x64",
+    "postdist": "node scripts/optimize-package.js"
   },
   "dependencies": {
     "vue": "^3.4.0"
@@ -13,8 +20,48 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",
     "autoprefixer": "^10.4.16",
+    "concurrently": "^10.0.5",
+    "electron": "^43.4.1",
+    "electron-builder": "^26.15.3",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "wait-on": "^9.1.0"
+  },
+  "build": {
+    "appId": "com.seu.bus.deskpet",
+    "productName": "东南大学接驳车桌宠",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/app-icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "东南大学接驳车桌宠"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "public/time.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "artifactName": "${productName} Setup ${version}.${ext}",
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    }
   }
 }
