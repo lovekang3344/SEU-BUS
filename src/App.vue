@@ -100,6 +100,7 @@
               @set-alarm="setAlarm"
               @toggle-alarm-input="toggleAlarmInput"
               @cancel-alarm="cancelAlarm"
+              @close-alarm-input="closeAlarmInput"
             />
           </transition-group>
         </div>
@@ -364,6 +365,16 @@ function cancelAlarm(busKey) {
   clearTimeout(alarmList.value[busKey])
   delete alarmList.value[busKey]
   alert('提醒已取消')
+}
+
+function closeAlarmInput(busKey) {
+  const card = document.querySelector(`[data-bus-key="${busKey}"]`)
+  if (card) {
+    const inputGroup = card.querySelector('.alarm-input-group')
+    if (inputGroup) {
+      inputGroup.style.display = 'none'
+    }
+  }
 }
 
 function toggleAlarmInput(busKey) {

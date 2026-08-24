@@ -128,17 +128,28 @@
 # 安装依赖
 pnpm install
 
-# 网页开发模式
+# ── 网页版 ──────────────────────────────────────────────
+# 启动 Vite 开发服务器（浏览器访问 http://localhost:5173/SEU-BUS/）
 pnpm dev
 
-# 桌宠开发模式（需要同时运行 Vite 服务）
-pnpm electron:dev
-
-# 构建网页版
+# 构建生产版本（输出到 dist/）
 pnpm build
 
-# 打包桌宠安装程序
+# 预览生产构建
+pnpm preview
+
+# ── 桌面桌宠版（Electron） ──────────────────────────────
+# 启动桌宠开发模式（自动启动 Vite + Electron）
+pnpm electron:dev
+
+# 构建 Windows 安装包（输出到 release/）
 pnpm dist
+
+# ── 发布 ────────────────────────────────────────────────
+# 推送代码并打标签，GitHub Actions 会自动构建并创建 Release
+git tag v1.1.3
+git push origin main
+git push origin v1.1.3
 ```
 
 ---

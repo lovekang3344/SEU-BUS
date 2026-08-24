@@ -95,7 +95,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['set-alarm', 'toggle-alarm-input', 'cancel-alarm'])
+const emit = defineEmits(['set-alarm', 'toggle-alarm-input', 'cancel-alarm', 'close-alarm-input'])
 
 const alarmMinutes = ref(5)
 const alarmList = ref({})
@@ -119,6 +119,7 @@ function formatCountdown(seconds) {
 function handleSetAlarm() {
   const minutes = parseInt(alarmMinutes.value, 10)
   emit('set-alarm', busKey.value, props.bus.time, props.bus.destination, props.bus.startLocation, minutes)
+  emit('close-alarm-input', busKey.value)
 }
 
 function handleToggleAlarmInput() {
@@ -127,6 +128,7 @@ function handleToggleAlarmInput() {
 
 function handleCancelAlarm() {
   emit('cancel-alarm', busKey.value)
+  emit('close-alarm-input', busKey.value)
 }
 
 function startCountdown(seconds) {
