@@ -3,8 +3,8 @@
   <DeskPet v-if="isElectron" />
 
   <!-- Original Web App (Browser) -->
-  <div v-else class="min-h-screen bg-gray-50 dark:bg-gray-900 flex justify-center items-start py-5 px-2.5">
-    <div class="w-full max-w-[500px] bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+  <div v-else class="min-h-screen bg-gray-50 dark:bg-gray-900 flex justify-center py-5 px-2.5">
+    <div class="w-full max-w-[500px] bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-5">
       <header class="bg-gradient-to-br from-primary to-primary-dark text-white p-6 text-center">
         <div class="flex justify-between items-center">
           <div class="flex items-center gap-2.5">
