@@ -1,0 +1,48 @@
+name: Build Desktop App
+
+on:
+  push:
+    tags:
+      - 'desktop-v*'   # 只响应 desktop-v 开头的标签
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]   # 按需选择平台
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build Electron app
+        run: bun run build   # 这里假设你的 build 脚本就是 electron-builder
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # 自动注入的 token，用于发布
+
+      - name: Upload artifacts (可选)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-build
+          path: dist/   # 把构建产物保存为临时工件，方便调试
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.AppImage
+            dist/*.deb    # 等等，根据实际生成的文件扩展名调整
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
