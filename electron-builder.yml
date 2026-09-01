@@ -1,0 +1,57 @@
+# electron-builder config (Windows-focused; macOS/Linux can be added later).
+# Docs: https://www.electron.build/configuration
+
+appId: com.zai.cubepet
+productName: Cube Pet Desktop
+copyright: Copyright © 2025 Z.ai
+
+directories:
+  output: release
+  buildResources: build
+
+# The compiled Electron main/preload (from tsconfig.electron.json -> dist-electron)
+files:
+  - dist-electron/**
+  - out/**
+  - package.json
+  - "!**/.DS_Store"
+  - "!**/node_modules/*/{CHANGELOG.md,README.md,readme.md,readme}"
+  - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+  - "!**/*.{md,markdown}"
+  - "!**/.{idea,git,cache,vscode,DS_Store}"
+
+# Bundle keepAlive.ps1 + time.json so the main process can read them via
+# process.resourcesPath/data/...
+extraResources:
+  - from: data/
+    to: data/
+    filter: ["**/*"]
+  - from: build/
+    to: build/
+    filter: ["icon.png", "icon.ico"]
+
+# Windows installer (NSIS — recommended over MSI for smaller size + better UX)
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  # Sign later; unsigned is fine for personal/internal use.
+  # certificateFile: ""
+  # certificatePassword: ""
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Cube Pet
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+
+# Portable is handy for testing without install.
+# Uncomment to also produce a no-install .exe:
+# portable:
+#   artifactName: CubePet-Portable-${version}.exe
