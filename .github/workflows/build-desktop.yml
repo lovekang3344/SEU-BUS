@@ -10,39 +10,69 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]   # 按需选择平台
+        os: [windows-latest, macos-latest, ubuntu-latest]   # 按需保留平台
+        # 如果只需 Windows，可删掉 macos-latest 和 ubuntu-latest
 
     steps:
+      # 1. 检出代码
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2. 设置 Bun
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
-          bun-version: latest
+          bun-version: latest   # 或指定版本如 1.1.0
 
+      # 3. 缓存 Bun 的依赖（提升后续构建速度）
+      - name: Cache bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      # 4. 安装依赖（增加超时和详细日志，防止被意外取消）
       - name: Install dependencies
-        run: bun install
-
-      - name: Build Electron app
-        run: bun run build   # 这里假设你的 build 脚本就是 electron-builder
+        run: bun install --frozen-lockfile --verbose
+        timeout-minutes: 10   # 给足时间，避免长时间无输出被 kill
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # 自动注入的 token，用于发布
+          # 可选：如果下载缓慢，可尝试用国内镜像（但 GitHub 本身在国外，通常不必）
+          # BUN_INSTALL_REGISTRY: https://registry.npmmirror.com
+          # 如果依赖中有原生模块，可能需要设置以下环境变量
+          # npm_config_node_gyp: /usr/bin/node-gyp
 
-      - name: Upload artifacts (可选)
+      # 5. 构建 Electron 应用（这里假设你的 build 脚本是 "bun run build"）
+      - name: Build Electron app
+        run: bun run build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # 供 electron-builder 上传（如果使用 auto-update）
+
+      # 6. 上传构建产物作为临时工件（便于调试）
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-build
-          path: dist/   # 把构建产物保存为临时工件，方便调试
+          path: dist/   # electron-builder 默认输出到 dist，如果不是请修改
+        if: always()    # 即使前步失败也上传（便于查看）
 
+      # 7. 创建 GitHub Release（仅当构建成功且是 tag 触发）
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: success() && startsWith(github.ref, 'refs/tags/')
         with:
           files: |
             dist/*.exe
             dist/*.dmg
             dist/*.AppImage
-            dist/*.deb    # 等等，根据实际生成的文件扩展名调整
+            dist/*.deb
+            # 如果你的 builder 生成其他格式，请按需添加
+            # 例如：dist/*.zip, dist/*.snap 等
+          # 如果你希望 release 始终是 draft，可启用以下：
+          # draft: true
+          # prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # 必须保证 token 有 contents:write 权限
