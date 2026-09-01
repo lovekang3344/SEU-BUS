@@ -99,12 +99,33 @@ function createWindow() {
     });
   });
 
-  // Load the Next.js dev server (dev) or the built static export (prod).
+  // Load the Next.js app. In dev, connect to the dev server. In production,
+  // start the bundled standalone server from .next/standalone/ and connect.
   if (isDev) {
     mainWindow.loadURL("http://localhost:3000");
     mainWindow.webContents.openDevTools({ mode: "detach" });
   } else {
-    mainWindow.loadFile(path.join(__dirname, "..", "out", "index.html"));
+    const { spawn } = await import("node:child_process");
+    const { serverPath } = await import("node:path");
+    const serverFile = serverPath.join(__dirname, "..", ".next", "standalone", "server.js");
+    const server = spawn(process.execPath, [serverFile], {
+      cwd: serverPath.join(__dirname, "..", ".next", "standalone"),
+      env: { ...process.env, PORT: "3456", HOSTNAME: "127.0.0.1" },
+      stdio: "ignore",
+    });
+    server.on("error", () => {
+      // If the bundled server fails to start, try loading the static export
+      // as a fallback.
+      mainWindow.loadFile(serverPath.join(__dirname, "..", "out", "index.html"));
+    });
+    // Wait for the server to be ready, then load the app.
+    import("node:http").then(({ default: http }) => {
+      const check = () =>
+        http.get("http://127.0.0.1:3456", () => {
+          mainWindow?.loadURL("http://127.0.0.1:3456");
+        }).on("error", () => setTimeout(check, 200));
+      check();
+    });
   }
 
   mainWindow.on("closed", () => {

@@ -10,9 +10,10 @@ directories:
   buildResources: build
 
 # The compiled Electron main/preload (from tsconfig.electron.json -> dist-electron)
+# and the Next.js standalone bundle (.next/standalone + .next/static).
 files:
   - dist-electron/**
-  - out/**
+  - .next/standalone/**
   - package.json
   - "!**/.DS_Store"
   - "!**/node_modules/*/{CHANGELOG.md,README.md,readme.md,readme}"
