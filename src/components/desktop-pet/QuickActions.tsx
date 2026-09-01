@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Heart, Utensils, Moon, Sun, Footprints, Bell, BellOff, Power, Bus } from "lucide-react";
+import { Heart, Utensils, Moon, Sun, Footprints, Bell, BellOff, Power, ZoomIn } from "lucide-react";
 import { usePetStore } from "@/hooks/use-pet-store";
 import { getPet } from "@/lib/pets";
 import { getKeepAlive, startKeepAlive, stopKeepAlive } from "@/lib/desktop";
@@ -23,6 +24,9 @@ export function QuickActions() {
   const energy = usePetStore((s) => s.energy);
   const remindersEnabled = usePetStore((s) => s.remindersEnabled);
   const setRemindersEnabled = usePetStore((s) => s.setRemindersEnabled);
+  const reminderLeadMinutes = usePetStore((s) => s.reminderLeadMinutes);
+  const scale = usePetStore((s) => s.scale);
+  const setScale = usePetStore((s) => s.setScale);
 
   const [kaEnabled, setKaEnabled] = useState(false);
   const [kaBusy, setKaBusy] = useState(false);
@@ -149,8 +153,23 @@ export function QuickActions() {
               />
             </div>
           </TooltipTrigger>
-          <TooltipContent>班车到站前 5 分钟提醒</TooltipContent>
+          <TooltipContent>班车到站前 {reminderLeadMinutes} 分钟提醒</TooltipContent>
         </Tooltip>
+      </div>
+
+      {/* Row 3: zoom slider (replaces discrete click-zoom in context menu) */}
+      <div className="flex items-center gap-2 pt-1.5 border-t border-border/40">
+        <ZoomIn className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+        <span className="text-[11px] shrink-0">缩放</span>
+        <Slider
+          value={[Math.round(scale * 100)]}
+          min={75}
+          max={150}
+          step={5}
+          onValueChange={(v) => setScale(v[0] / 100)}
+          className="flex-1"
+        />
+        <span className="text-[10px] font-mono text-muted-foreground w-8 text-right shrink-0">{Math.round(scale * 100)}%</span>
       </div>
     </div>
   );

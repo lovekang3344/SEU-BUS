@@ -41,7 +41,7 @@ function SpeechBubbles() {
   const accent = usePetStore((s) => getPet(s.petId).accent);
 
   return (
-    <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
+    <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1" style={{ bottom: "100%", marginBottom: 12 }}>
       {bubbles.map((b) => (
         <div
           key={b.id}

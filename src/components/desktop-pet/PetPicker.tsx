@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { PETS, type PetId } from "@/lib/pets";
 import { usePetStore } from "@/hooks/use-pet-store";
 import { Sparkles } from "lucide-react";
+import { QuickActions } from "./QuickActions";
 
 export function PetPicker({ onClose }: { onClose?: () => void }) {
   const petId = usePetStore((s) => s.petId);
@@ -24,6 +25,7 @@ export function PetPicker({ onClose }: { onClose?: () => void }) {
         </div>
       </CardHeader>
       <CardContent>
+        <QuickActions />
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-72 overflow-y-auto pet-scroll pr-1">
           {PETS.map((p) => {
             const active = p.id === petId;
@@ -45,7 +47,7 @@ export function PetPicker({ onClose }: { onClose?: () => void }) {
                   src={p.src}
                   alt={p.nameCn}
                   draggable={false}
-                  className="pet-sprite h-12 w-12"
+                  className="pet-sprite h-14 w-14 object-contain aspect-square"
                   style={{ imageRendering: "pixelated" }}
                 />
                 <span className="text-[11px] font-medium leading-none">{p.nameCn}</span>

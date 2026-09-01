@@ -30,6 +30,17 @@ export function nowHHMM(now: Date = new Date()): string {
   return `${hh}:${mm}`;
 }
 
+/** Resolve the effective day type: if override is "auto" (or undefined), use
+ *  todayType(); otherwise use the manual override. */
+export function effectiveDayType(
+  override: "auto" | "workday" | "holiday" | undefined,
+  now: Date = new Date()
+): DayType {
+  if (override === "workday") return "workday";
+  if (override === "holiday") return "holiday";
+  return todayType(now);
+}
+
 export interface UpcomingDeparture extends Departure {
   inMinutes: number;
   upcoming: boolean;

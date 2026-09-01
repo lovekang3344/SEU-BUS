@@ -64,6 +64,12 @@ interface PetState {
   setScheduleOrigin: (o: string) => void;
   remindersEnabled: boolean;
   setRemindersEnabled: (v: boolean) => void;
+  /** How many minutes before departure to fire the reminder. Default 10. */
+  reminderLeadMinutes: number;
+  setReminderLeadMinutes: (v: number) => void;
+  /** "auto" = compute from day-of-week; "workday"/"holiday" = manual override. */
+  dayTypeOverride: "auto" | "workday" | "holiday";
+  setDayTypeOverride: (v: "auto" | "workday" | "holiday") => void;
 }
 
 let bubbleSeq = 1;
@@ -126,6 +132,11 @@ export const usePetStore = create<PetState>()(
       setScheduleOrigin: (scheduleOrigin) => set({ scheduleOrigin }),
       remindersEnabled: true,
       setRemindersEnabled: (remindersEnabled) => set({ remindersEnabled }),
+      reminderLeadMinutes: 10,
+      setReminderLeadMinutes: (reminderLeadMinutes) =>
+        set({ reminderLeadMinutes: Math.min(60, Math.max(1, Math.round(reminderLeadMinutes))) }),
+      dayTypeOverride: "auto",
+      setDayTypeOverride: (dayTypeOverride) => set({ dayTypeOverride }),
     }),
     {
       name: "desktop-pet-state",
@@ -141,6 +152,8 @@ export const usePetStore = create<PetState>()(
         energy: s.energy,
         scheduleOrigin: s.scheduleOrigin,
         remindersEnabled: s.remindersEnabled,
+        reminderLeadMinutes: s.reminderLeadMinutes,
+        dayTypeOverride: s.dayTypeOverride,
       }),
     }
   )
