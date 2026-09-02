@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePetStore, type PetActivity } from "@/hooks/use-pet-store";
 import { getPet } from "@/lib/pets";
 import { attachInteractive } from "@/lib/desktop";
+import { unlockAudio } from "@/lib/sound";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
@@ -146,6 +147,9 @@ export function DesktopPet() {
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    // Unlock audio on first interaction (browser autoplay policy requires a
+    // user gesture). Subsequent reminder chimes will then actually play.
+    unlockAudio();
     downAt.current = { x: e.clientX, y: e.clientY, t: Date.now() };
     movedRef.current = false;
     dragOffset.current = { dx: e.clientX - x, dy: e.clientY - y };

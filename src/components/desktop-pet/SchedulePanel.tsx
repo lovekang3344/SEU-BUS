@@ -10,6 +10,7 @@ import { Bus, Clock, MapPin, RefreshCw, Bell, BellOff, CalendarDays } from "luci
 import { usePetStore } from "@/hooks/use-pet-store";
 import { isDesktop, fetchScheduleData } from "@/lib/desktop";
 import { computeUpcoming, listLocations, effectiveDayType, type ScheduleData, type DayType, type UpcomingDeparture } from "@/lib/schedule";
+import { playChime } from "@/lib/sound";
 import { QuickActions } from "./QuickActions";
 
 interface ScheduleResp {
@@ -98,7 +99,8 @@ export function SchedulePanel({ onClose }: { onClose?: () => void }) {
     return () => { clearInterval(iv30); clearInterval(iv1); };
   }, [reload]);
 
-  // reminder: if next departure within reminderLeadMinutes, pet announces once.
+  // reminder: if next departure within reminderLeadMinutes, pet announces once
+  // with a speech bubble + a chime sound.
   useEffect(() => {
     if (!remindersEnabled || !data?.departures.length) return;
     const next = data.departures[0];
@@ -107,6 +109,7 @@ export function SchedulePanel({ onClose }: { onClose?: () => void }) {
       if (key !== remindedKeyRef.current) {
         remindedKeyRef.current = key;
         say(`${data.origin} → ${next.destination} 的车 ${next.time} 就要发车啦！🚌`, "reminder", 6000);
+        playChime();
       }
     }
   }, [data, remindersEnabled, reminderLeadMinutes, say]);
@@ -232,7 +235,7 @@ export function SchedulePanel({ onClose }: { onClose?: () => void }) {
         </div>
         <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
           {remindersEnabled
-            ? `💡 下一班发车前 ${reminderLeadMinutes} 分钟内，宠物会语音提醒一次。需打开控制面板才会检测。`
+            ? `🔔 下一班发车前 ${reminderLeadMinutes} 分钟内，宠物会语音+提示音提醒一次。需打开控制面板才会检测。`
             : "发车提醒已关闭。"}
           {dayTypeOverride === "auto" ? " 日期按周末自动判断。" : " 日期已手动指定。"}
         </p>

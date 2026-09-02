@@ -21,6 +21,11 @@ import { KeepAliveManager } from "./keepalive";
 import { getSchedule } from "./schedule";
 import { IPC, type DisplayBounds } from "./types";
 
+// Allow audio autoplay without user gesture (so reminder chimes fire even
+// when the user is working in another app). This is the command-line switch
+// equivalent of the autoplayPolicy webPreference — set BOTH for max compat.
+app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
+
 // Register the app:// scheme as privileged BEFORE app.whenReady.
 // This lets it support fetch, CORS, relative URLs, etc. — like https://.
 protocol.registerSchemesAsPrivileged([
@@ -122,6 +127,10 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
+      // Allow audio playback without a prior user gesture. Desktop pet
+      // reminders (chime + TTS) should fire even when the user is working in
+      // another app and hasn't clicked the pet.
+      autoplayPolicy: "no-user-gesture-required",
     },
   });
 
