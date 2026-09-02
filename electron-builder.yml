@@ -10,16 +10,19 @@ directories:
   buildResources: build
 
 # The compiled Electron main/preload (from tsconfig.electron.json -> dist-electron)
-# and the Next.js standalone bundle (.next/standalone + .next/static).
+# and the statically-exported frontend (out/). NO node_modules needed at runtime
+# because the frontend is pre-built and the main process uses only Electron APIs.
 files:
-  - dist-electron/**
-  - .next/standalone/**
+  - dist-electron/**/*
+  - out/**/*
   - package.json
+  - "!**/node_modules/**"
   - "!**/.DS_Store"
-  - "!**/node_modules/*/{CHANGELOG.md,README.md,readme.md,readme}"
-  - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
   - "!**/*.{md,markdown}"
   - "!**/.{idea,git,cache,vscode,DS_Store}"
+
+# Make sure out/ is packed into asar (not unpacked) so app:// can read it.
+asar: true
 
 # Bundle keepAlive.ps1 + time.json so the main process can read them via
 # process.resourcesPath/data/...

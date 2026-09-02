@@ -14,7 +14,7 @@ import {
 import { PETS, type PetId } from "@/lib/pets";
 import { usePetStore } from "@/hooks/use-pet-store";
 import { isDesktop, lockInteractive, registerInteractiveZone } from "@/lib/desktop";
-import { Heart, Utensils, Moon, Sun, Footprints, Cat, Settings2, LayoutGrid } from "lucide-react";
+import { Heart, Utensils, Moon, Sun, Footprints, Cat, LayoutGrid } from "lucide-react";
 
 function petAction(action: string) {
   window.dispatchEvent(new CustomEvent("pet-action", { detail: action }));
@@ -73,11 +73,7 @@ export function PetContextMenu({ children }: { children: React.ReactNode }) {
   const petId = usePetStore((s) => s.petId);
   const setPetId = usePetStore((s) => s.setPetId);
   const activity = usePetStore((s) => s.activity);
-  const autonomy = usePetStore((s) => s.autonomy);
-  const setAutonomy = usePetStore((s) => s.setAutonomy);
   const say = usePetStore((s) => s.say);
-  const scale = usePetStore((s) => s.scale);
-  const setScale = usePetStore((s) => s.setScale);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [subOpen, setSubOpen] = useState(false);
@@ -132,27 +128,6 @@ export function PetContextMenu({ children }: { children: React.ReactNode }) {
                 {p.id === petId && <span className="ml-auto text-xs text-muted-foreground">当前</span>}
               </ContextMenuItem>
             ))}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-
-        <ContextMenuSub onOpenChange={(open) => setSubOpen(open)}>
-          <ContextMenuSubTrigger>
-            <Settings2 className="mr-2 h-4 w-4" /> 设置
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-52">
-            <ContextMenuItem onClick={() => setAutonomy(!autonomy)}>
-              <Footprints className="mr-2 h-4 w-4" />
-              自主活动
-              <span className="ml-auto text-xs">{autonomy ? "开" : "关"}</span>
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => setScale(Math.min(1.5, scale + 0.15))}>
-              <span className="mr-2">🔍</span> 放大
-              <span className="ml-auto text-xs text-muted-foreground">{Math.round(scale * 100)}%</span>
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => setScale(Math.max(0.75, scale - 0.15))}>
-              <span className="mr-2">🔎</span> 缩小
-              <span className="ml-auto text-xs text-muted-foreground">{Math.round(scale * 100)}%</span>
-            </ContextMenuItem>
           </ContextMenuSubContent>
         </ContextMenuSub>
       </ContextMenuContent>

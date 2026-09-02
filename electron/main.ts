@@ -14,15 +14,73 @@
  * zone (pet / dock / panel).
  */
 
-import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, screen } from "electron";
+import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, screen, protocol, globalShortcut } from "electron";
 import path from "path";
+import fs from "fs";
 import { KeepAliveManager } from "./keepalive";
 import { getSchedule } from "./schedule";
 import { IPC, type DisplayBounds } from "./types";
 
+// Register the app:// scheme as privileged BEFORE app.whenReady.
+// This lets it support fetch, CORS, relative URLs, etc. — like https://.
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: "app",
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      stream: true,
+      bypassCSP: false,
+    },
+  },
+]);
+
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 const ka = new KeepAliveManager();
+
+/** Resolve a web path like "/_next/static/x.js" or "/pets/cat.png" to an
+ *  absolute filesystem path pointing into the static export (out/).
+ *  Works both in dev (plain folder) and packaged (inside app.asar).
+ *  Returns null if the path escapes the out/ root (directory-traversal guard). */
+function resolveAppFilePath(urlPath: string): string | null {
+  // Strip query/hash.
+  const clean = urlPath.split(/[?#]/)[0];
+  // Normalize leading slashes.
+  const rel = clean.replace(/^\/+/, "");
+  // The static export lives in `out/`.
+  //   - Dev: <projectRoot>/out  (__dirname is dist-electron, so .. / out)
+  //   - Packaged: <resourcesPath>/app.asar/out  (fs transparently reads asar)
+  const isPackaged = app.isPackaged;
+  const outRoot = isPackaged
+    ? path.join(process.resourcesPath, "app.asar", "out")
+    : path.join(__dirname, "..", "out");
+  const full = path.resolve(outRoot, rel);
+  // Prevent directory traversal outside out/.
+  const rootResolved = path.resolve(outRoot);
+  if (!full.startsWith(rootResolved)) return null;
+  return full;
+}
+
+/** Map file extension → MIME type. */
+const MIME_TYPES: Record<string, string> = {
+  js: "text/javascript",
+  mjs: "text/javascript",
+  css: "text/css",
+  html: "text/html",
+  json: "application/json",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  svg: "image/svg+xml",
+  woff2: "font/woff2",
+  woff: "font/woff",
+  ico: "image/x-icon",
+  map: "application/json",
+  txt: "text/plain",
+};
 
 /** Compute the combined bounds of all displays so the transparent window
  *  spans every monitor (the pet can then be dragged across screens). */
@@ -84,11 +142,14 @@ function createWindow() {
         "connect-src 'self' http://localhost:3000 ws://localhost:3000",
       ].join("; ")
     : [
-        "default-src 'self'",
-        "script-src 'self'",
-        "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data:",
-        "connect-src 'self'",
+        "default-src 'self' app: data:",
+        "script-src 'self' 'unsafe-inline' app:",
+        "style-src 'self' 'unsafe-inline' app:",
+        "img-src 'self' data: app: blob:",
+        "font-src 'self' data: app:",
+        "connect-src 'self' app:",
+        "worker-src 'self' blob:",
+        "media-src 'self' app: data:",
       ].join("; ");
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, cb) => {
     cb({
@@ -99,44 +160,40 @@ function createWindow() {
     });
   });
 
-  // Load the Next.js app. In dev, connect to the dev server. In production,
-  // start the bundled standalone server and connect via http://localhost.
+  // Load the Next.js dev server (dev) or the built static export (prod).
   if (isDev) {
     mainWindow.loadURL("http://localhost:3000");
     mainWindow.webContents.openDevTools({ mode: "detach" });
   } else {
-    startServerAndLoad();
+    // Use the custom app:// protocol so absolute paths like /_next/... resolve
+    // to the static export inside the asar. (file:// would break them.)
+    mainWindow.loadURL("app://./index.html");
   }
+
+  // In packaged builds, F12 toggles DevTools for debugging.
+  // Also log any load failures to the console so the user can see them
+  // when running from a terminal.
+  mainWindow.webContents.on("did-fail-load", (_e, errorCode, errorDescription, validatedURL) => {
+    console.error(`[did-fail-load] code=${errorCode} desc=${errorDescription} url=${validatedURL}`);
+  });
+  mainWindow.webContents.on("console-message", (_e, level, message, line, sourceId) => {
+    console.log(`[renderer:${level}] ${message} (${sourceId}:${line})`);
+  });
 
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
-}
 
-/** In production, spawn the Next.js standalone server as a child process,
- *  wait for it to become ready, then load the app in the BrowserWindow. */
-async function startServerAndLoad() {
-  const { spawn } = await import("node:child_process");
-  const serverFile = path.join(__dirname, "..", ".next", "standalone", "server.js");
-  const server = spawn(process.execPath, [serverFile], {
-    cwd: path.join(__dirname, "..", ".next", "standalone"),
-    env: { ...process.env, PORT: "3456", HOSTNAME: "127.0.0.1" },
-    stdio: "ignore",
+  // F12 toggles DevTools (useful for debugging packaged builds).
+  globalShortcut.register("F12", () => {
+    const w = mainWindow;
+    if (!w) return;
+    if (w.webContents.isDevToolsOpened()) {
+      w.webContents.closeDevTools();
+    } else {
+      w.webContents.openDevTools({ mode: "detach" });
+    }
   });
-
-  server.on("error", () => {
-    // If the bundled server fails to start, try loading the static export
-    // as a fallback.
-    mainWindow!.loadFile(path.join(__dirname, "..", "out", "index.html"));
-  });
-
-  // Wait for the server to be ready, then load the app.
-  const { default: http } = await import("node:http");
-  const check = () =>
-    http.get("http://127.0.0.1:3456", () => {
-      mainWindow!.loadURL("http://127.0.0.1:3456");
-    }).on("error", () => setTimeout(check, 200));
-  check();
 }
 
 function createTray() {
@@ -232,6 +289,40 @@ function repositionWindow() {
 /* ------------------------- App lifecycle ------------------------- */
 
 app.whenReady().then(() => {
+  // Register a custom `app://` protocol that serves files from the static
+  // export (out/). This is necessary because Next.js static export uses
+  // absolute paths like /_next/... and /pets/... which break under file://
+  // (absolute paths resolve to filesystem root). The app:// protocol lets us
+  // intercept these and serve the correct file from inside the asar.
+  //
+  // We use fs.readFile (NOT net.fetch) because fs transparently reads from
+  // app.asar — net.fetch on asar file:// URLs fails with ERR_FILE_NOT_FOUND
+  // on Windows.
+  protocol.handle("app", async (request) => {
+    const url = new URL(request.url);
+    // app://./index.html  →  pathname "/index.html"
+    const filePath = resolveAppFilePath(url.pathname);
+    if (!filePath) {
+      console.error(`[app://] path rejected (traversal?): ${url.pathname}`);
+      return new Response("Not found", { status: 404 });
+    }
+    try {
+      const buf = await fs.promises.readFile(filePath);
+      const ext = url.pathname.split(".").pop()?.toLowerCase() || "";
+      const mime = MIME_TYPES[ext] || "application/octet-stream";
+      return new Response(buf, {
+        status: 200,
+        headers: {
+          "Content-Type": mime,
+          "Cache-Control": "no-cache",
+        },
+      });
+    } catch (e) {
+      console.error(`[app://] readFile failed for ${filePath}:`, e);
+      return new Response("Not found", { status: 404 });
+    }
+  });
+
   createWindow();
   createTray();
   registerIpc();

@@ -1,6 +1,9 @@
 {
   "name": "cube-pet-desktop",
-  "version": "0.2.0",
+  "version": "0.5.0",
+  "description": "Low-resource desktop pet (Cube Pets) with shuttle schedule + aTrust KeepAlive control",
+  "author": "Z.ai",
+  "license": "MIT",
   "private": true,
   "main": "dist-electron/main.js",
   "scripts": {
@@ -12,15 +15,30 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "build:desktop": "cross-env BUILD_DESKTOP=1 next build && node scripts/copy-public.mjs",
+    "build:desktop": "node scripts/desktop-build.mjs",
     "gen:icons": "node scripts/gen-icons.mjs",
     "electron:compile": "tsc -p tsconfig.electron.json",
     "electron:compile:watch": "tsc -p tsconfig.electron.json --watch --preserveWatchOutput",
     "electron:dev": "tsc -p tsconfig.electron.json && concurrently -k -n TSC,NEXT,ELECTRON -c yellow,magenta,cyan \"bun run electron:compile:watch\" \"bun run dev\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .\"",
-    "electron:build": "bun run build:desktop && tsc -p tsconfig.electron.json && electron-builder",
-    "electron:build:dir": "bun run build:desktop && tsc -p tsconfig.electron.json && electron-builder --dir"
+    "electron:build": "bun run build:desktop && node scripts/verify-build.mjs && tsc -p tsconfig.electron.json && electron-builder",
+    "electron:build:dir": "bun run build:desktop && node scripts/verify-build.mjs && tsc -p tsconfig.electron.json && electron-builder --dir"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "bun-types": "^1.3.4",
+    "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0",
+    "electron": "^44.1.0",
+    "electron-builder": "^26.15.3",
+    "eslint": "^9",
+    "eslint-config-next": "^16.1.1",
+    "tailwindcss": "^4",
+    "tw-animate-css": "^1.3.5",
+    "typescript": "^5",
+    "wait-on": "^9.1.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -87,21 +105,5 @@
     "z-ai-web-dev-sdk": "^0.0.18",
     "zod": "^4.0.2",
     "zustand": "^5.0.6"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "bun-types": "^1.3.4",
-    "concurrently": "^10.0.5",
-    "cross-env": "^10.1.0",
-    "electron": "^44.1.0",
-    "electron-builder": "^26.15.3",
-    "eslint": "^9",
-    "eslint-config-next": "^16.1.1",
-    "tailwindcss": "^4",
-    "tw-animate-css": "^1.3.5",
-    "typescript": "^5",
-    "wait-on": "^9.1.0"
   }
 }

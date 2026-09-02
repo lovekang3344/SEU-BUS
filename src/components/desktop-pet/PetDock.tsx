@@ -36,6 +36,27 @@ export function PetDock() {
   const [tab, setTab] = useState<Panel>("picker");
   const [closingIn, setClosingIn] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  // Pet position + scale (so the panel can float next to the pet).
+  const petX = usePetStore((s) => s.x);
+  const petY = usePetStore((s) => s.y);
+  const petScale = usePetStore((s) => s.scale);
+
+  // Compute panel position: float to the right of the pet; if not enough room,
+  // float to the left; vertically aligned with the pet, clamped to viewport.
+  const PET_BASE = 96;
+  const PANEL_W = 360;
+  const PANEL_MAX_H = 480;
+  const GAP = 12;
+  const petW = PET_BASE * petScale;
+  const vw = typeof window !== "undefined" ? window.innerWidth : 1920;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 1080;
+  // Prefer right side; if pet is in the right third, put panel on the left.
+  const placeOnRight = petX + petW + GAP + PANEL_W < vw;
+  const panelLeft = placeOnRight
+    ? petX + petW + GAP
+    : petX - PANEL_W - GAP;
+  // Vertically: align top of panel with pet top, clamped into viewport.
+  const panelTop = Math.min(Math.max(petY, 8), vh - PANEL_MAX_H - 8);
 
   // Listen for "pet-open-panel" events (from context menu / other triggers).
   useEffect(() => {
@@ -108,7 +129,8 @@ export function PetDock() {
     <TooltipProvider delayDuration={300}>
       <div
         ref={panelRef}
-        className="fixed bottom-4 right-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border/60 bg-background/85 backdrop-blur-xl shadow-2xl overflow-visible"
+        className="fixed z-50 w-[360px] max-w-[calc(100vw-1rem)] rounded-2xl border border-border/60 bg-background/85 backdrop-blur-xl shadow-2xl overflow-visible transition-all duration-150"
+        style={{ left: Math.max(8, Math.min(panelLeft, vw - PANEL_W - 8)), top: panelTop }}
       >
         {/* "about to close" countdown strip */}
         {closingIn && (

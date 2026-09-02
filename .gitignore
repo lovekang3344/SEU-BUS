@@ -23,7 +23,7 @@ node_modules
 # misc
 .DS_Store
 *.pem
-
+.desktop-build.flag
 # debug
 npm-debug.log*
 yarn-debug.log*
