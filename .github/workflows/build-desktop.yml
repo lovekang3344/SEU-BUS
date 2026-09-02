@@ -1,64 +1,75 @@
-name: Build Desktop App
+# Build & publish the Electron desktop app to GitHub Releases.
+# Triggers on tags matching `desktop-v*` (e.g. desktop-v0.1.0).
+# Runs on windows-latest, builds the NSIS installer, attaches it to a Release.
+name: Desktop Release
 
 on:
   push:
     tags:
-      - 'desktop-v*'
+      - "desktop-v*"
+
+permissions:
+  contents: write   # needed by softprops/action-gh-release to create the release
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Cache bun dependencies
-        uses: actions/cache@v4
+      - name: Setup Node (for electron-builder fallback)
+        uses: actions/setup-node@v4
         with:
-          path: |
-            ~/.bun/install/cache
-            node_modules
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
+          node-version: 20
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile --no-progress --no-optional
-        timeout-minutes: 25
+        run: bun install --frozen-lockfile
 
-      - name: Generate app icons
-        run: bun run gen:icons
-
-      - name: Build Electron app
+      - name: Build & package (Next export + tsc + electron-builder)
         run: bun run electron:build
         env:
+          # electron-builder reads these; GH_TOKEN enables the release upload.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        timeout-minutes: 20
 
-      - name: Upload artifacts
+      - name: Upload artifacts (for debugging if release fails)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-build
-          path: release/
-        if: always()
+          name: release-dist
+          path: |
+            release/
+            out/
+            dist-electron/
+          if-no-files-found: ignore
+          retention-days: 7
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        if: success() && startsWith(github.ref, 'refs/tags/')
+      - name: Extract version from tag
+        id: ver
+        shell: bash
+        run: |
+          # tag like "desktop-v0.1.0" -> version "0.1.0"
+          TAG="${GITHUB_REF_NAME#desktop-v}"
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Extracted version: $TAG"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
+          name: Desktop ${{ steps.ver.outputs.version }}
+          tag_name: ${{ github.ref_name }}
+          target_commitish: desktop
+          draft: false
+          prerelease: false
+          generate_release_notes: true
           files: |
             release/*.exe
-            release/*.dmg
-            release/*.AppImage
-            release/*.deb
+            release/*.msi
+            release/**/*.exe
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
